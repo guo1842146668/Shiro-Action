@@ -41,6 +41,8 @@ public class User implements Serializable {
 
     private Integer deptId;
 
+    private Integer type;
+
     private String deptName;
 
     public Integer getUserId() {
@@ -139,6 +141,14 @@ public class User implements Serializable {
         this.deptName = deptName;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -154,6 +164,7 @@ public class User implements Serializable {
                 ", activeCode='" + activeCode + '\'' +
                 ", deptId=" + deptId +
                 ", deptName='" + deptName + '\'' +
+                ", type='" + type + '\'' +
                 '}';
     }
 }

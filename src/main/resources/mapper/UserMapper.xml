@@ -13,6 +13,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="dept_id" jdbcType="INTEGER" property="deptId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -26,7 +27,8 @@
             create_time,
             modify_time,
             active_code,
-            dept_id
+            dept_id,
+            type
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">

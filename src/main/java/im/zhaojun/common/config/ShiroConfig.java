@@ -17,6 +17,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Lazy;
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
@@ -51,6 +53,9 @@ public class ShiroConfig {
     @Value("${spring.redis.port}")
     private Integer redisPort;
 
+    /**
+     * Shiro过滤器配置
+     */
     @Bean
     public RestShiroFilterFactoryBean restShiroFilterFactoryBean(SecurityManager securityManager) {
         RestShiroFilterFactoryBean shiroFilterFactoryBean = new RestShiroFilterFactoryBean();
@@ -154,4 +159,5 @@ public class ShiroConfig {
         sessionManager.setSessionIdUrlRewritingEnabled(false);
         return sessionManager;
     }
+
 }

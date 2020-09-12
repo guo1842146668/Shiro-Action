@@ -59,15 +59,15 @@
         <div style="height: 100%">
             <div style="padding: 20px; background-color: #F2F2F2;height: 100%;">
                 <div class="layui-row layui-col-space15">
-                    <div class="layui-col-md3">
+                    <!--<div class="layui-col-md3">
                         <div class="layui-card">
                             <div class="layui-card-header">菜单树</div>
                             <div class="layui-card-body" id="toolbarDiv">
                                 <ul id="menuTree" class="dtree" data-id="0"></ul>
                             </div>
                         </div>
-                    </div>
-                    <div class="layui-col-md9">
+                    </div>-->
+                    <div class="layui-col-md12">
                         <div class="layui-card">
                             <div class="layui-card-header" id="card-header">操作列表</div>
                             <div class="layui-card-body">
@@ -144,7 +144,7 @@
 
             tablePlug.smartReload.enable(true);
 
-            var DTree = dtree.render({
+            /*var DTree = dtree.render({
                 elem: "#menuTree",
                 url: "/menu/tree/root/operator",
                 dataStyle: "layuiStyle",
@@ -205,7 +205,7 @@
                         return buttons; // 将按钮对象返回
                     }
                 }
-            });
+            });*/
 
             table.render({
                 elem: '#operator-table'

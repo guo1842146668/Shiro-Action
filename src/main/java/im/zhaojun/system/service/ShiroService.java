@@ -46,7 +46,7 @@ public class ShiroService {
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
 
         // 系统默认过滤器
-        filterChainDefinitionMap.put("/favicon.ico", "anon");
+        filterChainDefinitionMap.put("/1.png", "anon");
         filterChainDefinitionMap.put("/css/**", "anon");
         filterChainDefinitionMap.put("/fonts/**", "anon");
         filterChainDefinitionMap.put("/images/**", "anon");
@@ -63,7 +63,9 @@ public class ShiroService {
         filterChainDefinitionMap.put("/oauth2/render/*", "anon");
         filterChainDefinitionMap.put("/oauth2/error", "anon");
         filterChainDefinitionMap.put("/captcha", "anon");
-
+        filterChainDefinitionMap.put("/equipment/open", "anon");
+        filterChainDefinitionMap.put("/equipment/down", "anon");
+        filterChainDefinitionMap.put("/scheduled/openingTiming", "anon");
         List<Menu> menuList = menuService.getLeafNodeMenu();
         for (Menu menu : menuList) {
             String url = menu.getUrl();
