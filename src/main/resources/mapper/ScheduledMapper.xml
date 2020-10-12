@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.system.mapper.ScheduledMapper">
+    <update id="updateScheduled">
+        update scheduled
+        <set>
+            <if test="cronStartTime != null and cronStartTime != ''">
+                cronStartTime = #{cronStartTime},
+            </if>
+            <if test="cronEndTime != null and cronEndTime != ''">
+                cronEndTime = #{cronEndTime},
+            </if>
+        </set>
+        where cron_id = #{cronId}
+    </update>
+
+    <select id="listAll" resultType="java.util.Map">
+        SELECT *,(SELECT username from `user` where user_id = (SELECT userID from equipment where
+        equipmentNO=scheduled.equipmentNO)) as username from scheduled where equipmentNO in
+        (SELECT equipmentNO from equipment
+        <where>
+            <if test="userID != null and userID != ''">
+                userID = #{userID}
+            </if>
+        </where>
+        )
+    </select>
+    <select id="selectOne" resultType="java.util.Map">
+        select * from scheduled where cron_id = #{cron_id}
+    </select>
+    <select id="listByEquipmentNO" resultType="java.util.Map">
+        SELECT *  from scheduled where equipmentNO = #{equipmentNO}
+    </select>
+    <select id="getScheduledByID" resultType="im.zhaojun.system.model.Scheduled">
+        select  * from scheduled where cron_id = #{userID}
+    </select>
+    <select id="getByCronId" resultType="im.zhaojun.system.model.Scheduled">
+        select  * from scheduled where equipmentNO = #{equipmentNO}
+    </select>
+</mapper>

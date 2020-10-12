@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>设备编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/1.png}"/>
+    <link rel="stylesheet" th:href="@{/lib/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.min.css}">
+    <link rel="stylesheet" th:href="@{/lib/layui/extend/formSelects-v4.css}" />
+</head>
+
+<body>
+    <div class="z-body animated fadeIn">
+        <form action="" method="post" class="layui-form layui-form-pane">
+            <div class="layui-form-item">
+                <label for="equipmentNO" class="layui-form-label">
+                    设备ID
+                </label>
+                <div class="layui-input-block">
+                    <input type="text" id="equipmentNO" name="equipmentNO"  th:value="${Equipment?.equipmentNO}"
+                           lay-verify="required" lay-vertype="tips"
+                           autocomplete="off" class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="equipmentType" class="layui-form-label">
+                    设备型号
+                </label>
+                <div class="layui-input-block">
+                    <select name="equipmentType" id="equipmentType" th:with="type=${@dicts.getGuide('设备类型')}" disabled>
+                        <option value="">所有</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictName}" th:value="${dict.dictID}"
+                                th:selected="${Equipment?.equipmentType} eq ${dict.dictID}"
+                        ></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="deptId" class="layui-form-label">
+                    从属用户
+                </label>
+                <div class="layui-input-block">
+                    <select name="userID" id="deptId"  disabled>
+                        <option value="">所有</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="equipmentAddress" class="layui-form-label">
+                    安装地址
+                </label>
+                <div class="layui-input-block" >
+                    <input readonly type="text" id="equipmentAddress" name="equipmentAddress"  th:value="${Equipment?.equipmentAddress}"
+                           lay-verify="required" lay-vertype="tips"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="margin-left:0;text-align:center;">
+                    <input type="hidden" id="equipmentID" name="equipmentID" th:value="${Equipment?.equipmentID}">
+                </div>
+            </div>
+
+            <div class="install">
+                <div th:if="${Equipment.runningState} == 1">
+                    <img src="../images/x.png"><span>运行中</span></img>
+                </div>
+
+                <div th:if="${Equipment.runningState} == 0">
+                    <img src="../images/jh.png"><span>停机中</span></img>
+                </div>
+
+
+                <div th:if="${Equipment.FaultStatus} == 1">
+                    <img src="../images/y.png"><span>故障</span></img>
+                </div>
+                <div th:if="${Equipment.FaultStatus} == 0">
+                    <img src="../images/bj.png"><span>故障</span></img>
+                </div>
+
+
+                <div th:if="${Equipment.OperationMode} == 1">
+                    <img src="../images/s.png"><span>手动模式</span></img>
+                </div>
+                <div th:if="${Equipment.OperationMode} == 0">
+                    <img src="../images/sd.png"><span>手动模式</span></img>
+                </div>
+
+                <div th:if="${Equipment.OperationMode} == 1">
+                    <img src="../images/m.png"><span>自动模式</span></img>
+                </div>
+                <div th:if="${Equipment.OperationMode} == 0">
+                    <img src="../images/zd.png"><span>自动模式</span></img>
+                </div>
+            </div>
+
+            <div class="control">
+                <div>
+                    <img id="open" src="../images/c.png" ><span>启动</span></img>
+
+                </div>
+                <div>
+                    <img id="down" src="../images/n.png"><span>停止</span></img>
+                </div>
+            </div>
+
+            <div th:if="${Equipment.runningState} == 1" class="dongtu">
+                <img src="../images/01.gif" >
+            </div>
+            <div th:if="${Equipment.runningState} == 0"  class="dongtu">
+                <img src="../images/04.png" >
+            </div>
+
+        </form>
+    </div>
+
+    <script th:src="@{/lib/jquery/jquery.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+
+    <script>
+        var id = $("#equipmentNO").val();
+
+        $("#open").click(function () {
+            $.ajax({
+                url : "/equipment/open?equipmentNO="+id,
+                type : "get",
+                success : function(data) {
+                    if(data.eq("success")){
+                        parent.layer.msg("开启成功", {icon: 6});
+                        table.reload('user-table');
+                    }else{
+                        parent.layer.msg("开启失败", {icon: 6});
+                        table.reload('user-table');
+                    }
+                }
+            });
+        })
+
+        $("#down").click(function () {
+            $.ajax({
+                url : "/equipment/down?equipmentNO="+id,
+                type : "get",
+                success : function(data) {
+                    if(data.eq("success")){
+                        parent.layer.msg("关闭成功", {icon: 6});
+                        table.reload('user-table');
+                    }else{
+                        parent.layer.msg("关闭失败", {icon: 6});
+                        table.reload('user-table');
+                    }
+                }
+            });
+        })
+    </script>
+<style>
+    .install{
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px 100px;
+        background: #FAFAFA;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-around;
+        margin: 40px 0;
+    }
+    .install view{
+        width: 25%;
+    }
+    .install img{
+        width: 50px;
+        height: 50px;
+        display: block;
+        margin: 0 auto 5px;
+    }
+    .install span{
+        display: block;
+        text-align: center;
+        font-family: PingFang SC Medium;
+        font-size: 16px;
+        color: #1A1A1A;
+    }
+    .control{
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        box-sizing: border-box;
+
+    }
+    .control img{
+        display: block;
+
+    }
+    .control span{
+        display: block;
+        text-align: center;
+    }
+    .dongtu{
+        display: flex;
+        justify-content: center;
+    }
+    .layui-form select{
+        display: block;
+        width: 100%;
+        height: 38px;
+    }
+/*    .dongtu img{
+        width: 100%;
+    }*/
+</style>
+</body>
+
+</html>

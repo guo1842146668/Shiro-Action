@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+    <meta charset="UTF-8">
+    <title>设备管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/1.png}"/>
+    <link rel="stylesheet" th:href="@{/lib/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.min.css}">
+    <link rel="stylesheet" th:href="@{/iconfont/iconfont.css}">
+</head>
+
+<body>
+
+    <div class="page-loading">
+        <div class="rubik-loader"></div>
+    </div>
+
+    <div class="z-body animated fadeIn">
+        <form class="layui-form zadmin-search-area input">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label for="equipmentNO" class="layui-form-label" style="width: auto">设备ID</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="equipmentNO" autocomplete="off"
+                               id="equipmentNO" class="layui-input">
+                    </div>
+
+                    <label for="equipmentName" class="layui-form-label" style="width: auto">设备名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="equipmentName" autocomplete="off"
+                               id="equipmentName" class="layui-input">
+                    </div>
+
+                    <label for="equipmentAddress" class="layui-form-label" style="width: auto">安装地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="equipmentAddress" autocomplete="off"
+                               id="equipmentAddress" class="layui-input">
+                    </div>
+
+                    <label for="equipmentType" class="layui-form-label" style="width: auto">设备类型</label>
+                    <div class="layui-input-inline">
+                        <select name="equipmentType" id="equipmentType" th:with="type=${@dicts.getGuide('设备类型')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictName}" th:value="${dict.dictID}"></option>
+                        </select>
+                    </div>
+                    <button lay-submit="" lay-filter="search" class="layui-btn layui-btn-sm layui-btn-primary table-action">
+                        <i class="zadmin-icon zadmin-icon-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <table class="layui-hide" id="user-table"></table>
+    </div>
+    <script type="text/html" id="toolbar">
+            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="ImportExcel">
+                <i class="zadmin-icon zadmin-icon-xinzeng zadmin-oper-area"></i>
+                导入
+            </button>
+            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="exportExcel">
+                <i class="zadmin-icon zadmin-icon-xinzeng zadmin-oper-area"></i>
+                导出
+            </button>
+    </script>
+
+    <script type="text/html" id="column-toolbar">
+
+            <a lay-event="edit">
+                <span >查看</span>
+            </a>
+
+            <a lay-event="save">
+                <span >远程控制</span>
+            </a>
+            <a lay-event="selects">
+                <span >定时</span>
+            </a>
+
+            <a lay-event="del">
+                <span >删除</span>
+            </a>
+
+    </script>
+
+    <script type="text/html" id="typeTpl">
+        {{#  if(d.electricStatus ==1 ){ }}
+            <div style="width: 12px;height: 12px; background:green;border-radius: 50%;"><div><span style="padding-left: 20px">正常</span>
+        {{#  } else { }}
+            <div style="width: 12px;height: 12px; background:red;border-radius: 50%;"><div><span style="padding-left: 20px">离线</span>
+        {{#  } }}
+    </script>
+    <script type="text/html" id="typeTpl1">
+        {{#  if(d.electricStatus ==1 ){ }}
+        <div style="width: 12px;height: 12px; background:green;border-radius: 50%;"><div><span style="padding-left: 20px">运行</span>
+            {{#  } else { }}
+            <div style="width: 12px;height: 12px; background:red;border-radius: 50%;"><div><span style="padding-left: 20px">停止</span>
+                {{#  } }}
+    </script>
+
+    <script th:src="@{/lib/jquery/jquery.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+
+    <script>
+        layui.config({
+            base: '/lib/layui/extend/'
+        }).use(['table', 'element', 'form',  'tablePlug'], function () {
+            var table = layui.table;
+            var $ = layui.$;
+            var form = layui.form;
+            var tablePlug = layui.tablePlug;
+
+            tablePlug.smartReload.enable(true);
+
+           /* dtree.renderSelect({
+                elem: "#deptTree",
+                url: "/dept/tree",
+                dataStyle: "layuiStyle",
+                width: "100%",
+                method: "GET",
+                dot: false,
+                menubar: true,
+                response: {
+                    statusCode: 0,
+                    message: "msg",
+                    treeId: "id",
+                    parentId: "parentId",
+                    title: "name"
+                }
+            });*/
+
+            /*dtree.on("node('deptTree')" ,function(obj) {
+                var typeDom = layui.$('#deptId');
+                console.log(typeDom.val() , obj.param.nodeId);
+                console.log(typeDom.val() === obj.param.nodeId);
+                if (typeDom.val() === obj.param.nodeId) {
+                    typeDom.val('');
+                    layui.$("input[dtree-id='deptTree']").val('请选择');
+                } else {
+                    typeDom.val(obj.param.nodeId)
+                }
+            });*/
+
+            table.render({
+                elem: '#user-table'
+                , url: '/equipment/list'
+                , page: true
+                , toolbar: '#toolbar'
+                , smartReloadModel: true
+                , cols: [
+                    [
+                        {type: 'numbers', title: '序号', width: "5%"}
+                        ,{field: 'equipmentID', title: '设备ID', width: "5%", hide: true}
+                        , {field: 'equipmentNO', title: '设备ID', width: "15%"}
+                        /*, {field: 'equipmentName', title: '设备名称', width: "12%"}*/
+                        , {field: 'equipmentTypeName', title: '型号', width: "15%"}
+                        , {field: 'equipmentAddress', title: '设备安装地址', width: "20%"}
+                        , {field: 'username', title: '所属用户', width: "10%"}
+                       /* , {field: 'electricCurrentIA', title: '电流1', width: "7%"}
+                        , {field: 'electricCurrentIB', title: '电流2', width: "7%"}
+                        , {field: 'electricCurrentIC', title: '电流3', width: "7%"}*/
+                        , {field: 'electricStatus', title: '链接状态', templet:"#typeTpl", width: "10%"}
+                        , {field: 'runningState', title: '设备状态', templet:"#typeTpl1", width: "10%"}
+                        , {title: '操作', fixed: 'right', align: 'center', toolbar: '#column-toolbar',width: "18%"}
+                    ]
+                ]
+            });
+
+           /* // 账号状态(正常/锁定)点击事件
+            form.on('switch(status)', function(data){
+                if (data.elem.checked) {
+                    $.post('/user/' + data.value + '/enable', function (data) {
+                        handlerResult(data, enableDone);
+                    });
+                } else {
+                    $.post('/user/' + data.value +'/disable', function (data) {
+                        handlerResult(data, disableDone);
+                    });
+                }
+            });*/
+
+            // 工具条点击事件
+            table.on('toolbar', function (obj) {
+                var event = obj.event;
+                if (event === 'exportExcel') {
+                    exportExcel();
+                }
+            });
+
+            function exportExcel() {
+                window.open("/equipment/uploadExcel", '导出Excel', 'height=' + (window.screen.availHeight - 300) + ', width=' + (window.screen.availWidth - 850) + ',top=200,left=500,right=0, toolbar =no, menubar=no, scrollbars=no, resizable=no, location=no, status=no');
+            }
+
+            // 行点击事件 重置密码
+            table.on('tool', function (obj) {
+                var data = obj.data;
+                var event = obj.event;
+                if (event === 'edit') {
+                    edit(data.equipmentID);
+                } else  if (event === 'del') {
+                    del(obj);
+                }else  if (event === 'save') {
+                    save(data.equipmentID);
+                }else  if(event === 'selects'){
+                    selects(data.equipmentNO);
+                }
+            });
+
+           /* function disableDone(data) {
+                parent.layer.msg("禁用成功", {icon: 6});
+            }
+
+            function enableDone(data) {
+                parent.layer.msg("激活成功", {icon: 6});
+            }*/
+
+
+
+            function del(obj) {
+                layer.confirm("确定删除设备吗?", {icon: 3, title: '提示'},
+                    function (index) {//确定回调
+                        var equipmentID = obj.data.equipmentID;
+                        $.post('/equipment/' + equipmentID, {_method: "DELETE"}, function (data) {
+                            layer.close(index);
+                            handlerResult(data, deleteDone);
+                        });
+                    }, function (index) {//取消回调
+                        layer.close(index);
+                    }
+                );
+            }
+
+            function deleteDone(data) {
+                parent.layer.msg("删除成功", {icon: 6});
+                table.reload('user-table');
+            }
+
+            function save(equipmentID) {
+                layer.open({
+                    content: '/equipment/kongzhi?equipmentID=' + equipmentID,
+                    title: "编辑",
+                    area: ['90%', '90%'],
+                    type: 2,
+                    maxmin: true,
+                    shadeClose: true,
+                    end: function () {
+                        table.reload('user-table');
+                    }
+                });
+            }
+
+            function selects(equipmentNO) {
+                layer.open({
+                    content: '/equipment/timing?equipmentNO=' + equipmentNO,
+                    title: "编辑",
+                    area: ['50%', '90%'],
+                    type: 2,
+                    maxmin: true,
+                    shadeClose: true,
+                    end: function () {
+                        table.reload('user-table');
+                    }
+                });
+            }
+
+            function edit(equipmentID) {
+                layer.open({
+                    content: '/equipment/' + equipmentID,
+                    title: "编辑",
+                    area: ['40%', '85%'],
+                    type: 2,
+                    maxmin: true,
+                    shadeClose: true,
+                    end: function () {
+                        table.reload('user-table');
+                    }
+                });
+            }
+            form.on('submit(search)', function (form) {
+                table.reload('user-table', {
+                    where: form.field
+                });
+                return false;
+            });
+
+        });
+    </script>
+</body>
+
+</html>

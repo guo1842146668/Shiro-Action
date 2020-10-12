@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+    <meta charset="UTF-8">
+    <title>设备管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/1.png}"/>
+    <link rel="stylesheet" th:href="@{/lib/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.min.css}">
+    <link rel="stylesheet" th:href="@{/iconfont/iconfont.css}">
+</head>
+
+<body>
+
+    <div class="page-loading">
+        <div class="rubik-loader"></div>
+    </div>
+
+    <div class="z-body animated fadeIn">
+        <form class="layui-form zadmin-search-area input">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <div class="layui-form-item">
+                        <label for="equipmentNO" class="layui-form-label" style="width: auto">设备ID</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="equipmentNO" autocomplete="off"
+                                   id="equipmentNO" class="layui-input">
+                        </div>
+
+                        <label for="equipmentName" class="layui-form-label" style="width: auto">设备名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="equipmentName" autocomplete="off"
+                                   id="equipmentName" class="layui-input">
+                        </div>
+
+                        <label for="equipmentAddress" class="layui-form-label" style="width: auto">安装地址</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="equipmentAddress" autocomplete="off"
+                                   id="equipmentAddress" class="layui-input">
+                        </div>
+
+                        <label for="equipmentType" class="layui-form-label" style="width: auto">设备类型</label>
+                        <div class="layui-input-inline">
+                            <select name="equipmentType" id="equipmentType" th:with="type=${@dicts.getGuide('设备类型')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictName}" th:value="${dict.dictID}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label for="startTime" class="layui-form-label" style="width: auto">开始时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="startDate"/>
+                        </div>
+
+                        <label for="endTime" class="layui-form-label" style="width: auto">结束时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="endDate"/>
+                        </div>
+                        <button lay-submit="" lay-filter="search" class="layui-btn layui-btn-sm layui-btn-primary table-action">
+                            <i class="zadmin-icon zadmin-icon-search"></i>
+                        </button>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </form>
+
+        <table class="layui-hide" id="user-table"></table>
+    </div>
+
+    <script type="text/html" id="toolbar">
+        <!--<shiro:hasPermission name="user:add">
+            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="add">
+                <i class="zadmin-icon zadmin-icon-xinzeng zadmin-oper-area"></i>
+                新增
+            </button>
+        </shiro:hasPermission>-->
+    </script>
+
+    <script type="text/html" id="column-toolbar">
+        <!--<shiro:hasPermission name="user:update">
+            <a lay-event="edit">
+                <i class="zadmin-icon zadmin-icon-edit-square zadmin-oper-area zadmin-blue" title="编辑"></i>
+            </a>
+        </shiro:hasPermission>-->
+        <!--<shiro:hasPermission name="user:delete">
+            <a lay-event="del">
+                <i class="zadmin-icon zadmin-icon-delete zadmin-oper-area zadmin-red" title="删除"></i>
+            </a>
+        </shiro:hasPermission>-->
+
+        <shiro:lacksPermission  name="user:update,user:delete">
+            <i class="zadmin-icon zadmin-icon-wuquanxian zadmin-oper-area zadmin-red"></i>无权限
+        </shiro:lacksPermission>
+    </script>
+
+    <script type="text/html" id="typeTpl">
+        {{#  if(d.electricStatus ==1 ){ }}
+            <div style="width: 12px;height: 12px; background:green;border-radius: 50%;"><div><span style="padding-left: 20px">正常</span>
+        {{#  } else { }}
+            <div style="width: 12px;height: 12px; background:red;border-radius: 50%;"><div><span style="padding-left: 20px">离线</span>
+        {{#  } }}
+    </script>
+
+    <script th:src="@{/lib/jquery/jquery.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+
+    <script>
+        layui.config({
+            base: '/lib/layui/extend/'
+        }).use(['table', 'element', 'form',  'tablePlug','laydate'], function () {
+            var table = layui.table;
+            var $ = layui.$;
+            var form = layui.form;
+            var tablePlug = layui.tablePlug;
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#startTime',
+                type: "date"
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: "date"
+            });
+            tablePlug.smartReload.enable(true);
+
+           /* dtree.renderSelect({
+                elem: "#deptTree",
+                url: "/dept/tree",
+                dataStyle: "layuiStyle",
+                width: "100%",
+                method: "GET",
+                dot: false,
+                menubar: true,
+                response: {
+                    statusCode: 0,
+                    message: "msg",
+                    treeId: "id",
+                    parentId: "parentId",
+                    title: "name"
+                }
+            });*/
+
+            /*dtree.on("node('deptTree')" ,function(obj) {
+                var typeDom = layui.$('#deptId');
+                console.log(typeDom.val() , obj.param.nodeId);
+                console.log(typeDom.val() === obj.param.nodeId);
+                if (typeDom.val() === obj.param.nodeId) {
+                    typeDom.val('');
+                    layui.$("input[dtree-id='deptTree']").val('请选择');
+                } else {
+                    typeDom.val(obj.param.nodeId)
+                }
+            });*/
+
+            table.render({
+                elem: '#user-table'
+                , url: '/alert/list'
+                , page: true
+                , toolbar: '#toolbar'
+                , smartReloadModel: true
+                , cols: [
+                    [
+                        {type: 'numbers', title: '序号', width: "5%"}
+                        ,{field: 'equipmentID', title: '设备ID', width: "5%", hide: true}
+                        , {field: 'username', title: '所属用户', width: "10%"}
+                        /*, {field: 'equipmentName', title: '设备名称', width: "12%"}*/
+                        , {field: 'equipmentNO', title: '设备ID', width: "15%"}
+                        , {field: 'equipmentTypeName', title: '设备类型', width: "15%"}
+                        , {field: 'equipmentAddress', title: '设备安装地址', width: "20%"}
+                        /*, {field: 'electricCurrentIA', title: '电流1', width: "7%"}
+                        , {field: 'electricCurrentIB', title: '电流2', width: "7%"}
+                        , {field: 'electricCurrentIC', title: '电流3', width: "7%"}*/
+                        , {field: 'alertTime', title: '警报时间', width: "15%"}
+                        /*, {field: 'electricStatus', title: '设备状态', templet:"#typeTpl", width: "10%"}*/
+                        , {title: '操作', fixed: 'right', align: 'center', toolbar: '#column-toolbar',width: "12%"}
+                    ]
+                ]
+            });
+
+           /* // 账号状态(正常/锁定)点击事件
+            form.on('switch(status)', function(data){
+                if (data.elem.checked) {
+                    $.post('/user/' + data.value + '/enable', function (data) {
+                        handlerResult(data, enableDone);
+                    });
+                } else {
+                    $.post('/user/' + data.value +'/disable', function (data) {
+                        handlerResult(data, disableDone);
+                    });
+                }
+            });*/
+
+            // 工具条点击事件
+            table.on('toolbar', function (obj) {
+                var data = obj.data;
+                var event = obj.event;
+
+                if (event === 'add') {
+                    add();
+                }
+            });
+
+            // 行点击事件 重置密码
+            table.on('tool', function (obj) {
+                var data = obj.data;
+                var event = obj.event;
+                if (event === 'edit') {
+                    edit(data.equipmentID);
+                } else  if (event === 'del') {
+                    del(obj);
+                }
+            });
+
+           /* function disableDone(data) {
+                parent.layer.msg("禁用成功", {icon: 6});
+            }
+
+            function enableDone(data) {
+                parent.layer.msg("激活成功", {icon: 6});
+            }*/
+
+            function add() {
+                layer.open({
+                    content: "/equipment",
+                    title: "设备用户",
+                    area: ['40%', '85%'],
+                    type: 2,
+                    maxmin: true,
+                    shadeClose: true,
+                    end: function () {
+                        table.reload('user-table');
+                    }
+                });
+            }
+
+            function del(obj) {
+                layer.confirm("确定删除用户吗?", {icon: 3, title: '提示'},
+                    function (index) {//确定回调
+                        var equipmentID = obj.data.equipmentID;
+                        $.post('/equipment/' + equipmentID, {_method: "DELETE"}, function (data) {
+                            layer.close(index);
+                            handlerResult(data, deleteDone);
+                        });
+                    }, function (index) {//取消回调
+                        layer.close(index);
+                    }
+                );
+            }
+
+            function deleteDone(data) {
+                parent.layer.msg("删除成功", {icon: 6});
+                table.reload('user-table');
+            }
+
+            function edit(equipmentID) {
+                layer.open({
+                    content: '/equipment/' + equipmentID,
+                    title: "编辑",
+                    area: ['40%', '85%'],
+                    type: 2,
+                    maxmin: true,
+                    shadeClose: true,
+                    end: function () {
+                        table.reload('user-table');
+                    }
+                });
+            }
+
+            form.on('submit(search)', function (form) {
+                table.reload('user-table', {
+                    where: form.field
+                });
+                return false;
+            });
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/1.png}"/>
+    <link rel="stylesheet" th:href="@{/lib/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.min.css}">
+    <link rel="stylesheet" th:href="@{/iconfont/iconfont.css}">
+    <script src="https://cdn.staticfile.org/echarts/4.8.0/echarts.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+
+<body>
+
+<!--  <div class="page-loading">
+      <div class="rubik-loader"></div>
+  </div>-->
+<div class="layui-card">
+    <div id="main2" style="width: 100%;height:400px;"></div>
+</div>
+<div class="layui-card">
+    <div id="main" style="width: 100%;height:400px;"></div>
+</div>
+<div class="layui-card">
+    <div id="main1" style="width: 100%;height:400px;"></div>
+</div>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+
+    $(function () {
+        getData();
+        getMonth();
+        getOff_line();
+    });
+
+    function getData() {
+        $.ajax({
+            type: 'get',
+            dataType: 'text',
+            url: '/stat/getDate',
+            data: {},
+            cache: false,
+            async: true,
+            success: function (data) {
+                var data = eval('(' + data + ')');
+                var data1 = new Array();
+                for (var i = 0; i < data.data.length; i++) {
+                    data1[i] = {value: data.data[i].number, name: data.data[i].alertEquipment}
+                }
+                var myChart = echarts.init(document.getElementById('main'));
+
+                // 指定图表的配置项和数据
+                option = {
+                    title: {
+                        text: '按照设备类型统计',
+                        subtext: '警报统计',
+                        x: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        data: data1
+                    },
+                    series: [
+                        {
+                            name: '警报率',
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '60%'],
+                            data: data1,
+                            itemStyle: {
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    function getMonth() {
+        $.ajax({
+            type: 'get',
+            dataType: 'text',
+            url: '/stat/getMonth',
+            data: {},
+            cache: false,
+            async: true,
+            success: function (data) {
+                var data = eval('(' + data + ')');
+                console.log(data);
+                var keys = new Array();
+                var values = new Array();
+                keys = Object.keys(data.data[0]);
+                values = Object.values(data.data[0]);
+                var myChart = echarts.init(document.getElementById('main1'));
+
+                // 指定图表的配置项和数据
+                option = {
+                    title: {
+                        text: '按照月份统计',
+                        subtext: '警报统计',
+                        x: 'center'
+                    },
+                    tooltip: {},
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        data:['警报次数']
+                    },
+                    xAxis: {
+                        data: keys
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '警报次数',
+                        type: 'bar',
+                        data: values
+                    }]
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            }
+        });
+    }
+
+
+    function getOff_line() {
+        $.ajax({
+            type: 'get',
+            dataType: 'text',
+            url: '/stat/getOff_line',
+            data: {},
+            cache: false,
+            async: true,
+            success: function (data) {
+                var data = eval('(' + data + ')');
+                var data1 = new Array();
+                for (var i = 0; i < data.data.length; i++) {
+                    data1[i] = {value: data.data[i].number, name: data.data[i].electricStatus==1?'在线':'离线'}
+                }
+                var myChart = echarts.init(document.getElementById('main2'));
+
+                // 指定图表的配置项和数据
+                option = {
+                    title: {
+                        text: '按照设备类型统计',
+                        subtext: '警报统计',
+                        x: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        data: data1
+                    },
+                    series: [
+                        {
+                            name: '警报率',
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '60%'],
+                            data: data1,
+                            itemStyle: {
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            }
+        });
+    }
+
+
+</script>
+</body>
+
+</html>

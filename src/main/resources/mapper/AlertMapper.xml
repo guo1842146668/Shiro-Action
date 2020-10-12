@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.system.mapper.AlertMapper">
+    <insert id="saveAlert">
+        insert  into  alert(alertTime,equipmentNO) value (#{alertTime},#{equipmentNO})
+    </insert>
+
+    <select id="getAlert" resultType="java.util.Map">
+        SELECT equipmentID,userID,equipmentName,a.equipmentNO,equipmentType,equipmentAddress,electricCurrentIA,
+        electricCurrentIB,electricCurrentIC,electricStatus,alertTime
+        ,(SELECT username from user where user_id = e.userID) as username
+        ,(SELECT dictName from dict where dictID = e.equipmentType) as equipmentTypeName
+        from alert a ,equipment e
+        where a.equipmentNO=e.equipmentNO
+        <if test="equipmentNO !=  null and equipmentNO != ''">
+            and   equipmentNO like "%"#{equipmentNO}"%"
+        </if>
+        <if test="equipmentName != null and equipmentName !=''" >
+            and   equipmentName like "%"#{equipmentName}"%"
+        </if>
+        <if test="equipmentAddress != null and equipmentAddress !=''">
+            and   equipmentAddress like "%"#{equipmentAddress}"%"
+        </if>
+        <if test="equipmentType != null and equipmentType !=''">
+            and   equipmentType = #{equipmentType}
+        </if>
+        <if test="userID != null and userID !=''">
+            and   userID = #{userID}
+        </if>
+        <if test="startDate != null &amp; startDate !=''" >
+            and a.alertTime &gt;= #{startDate}
+        </if>
+        <if test="endDate != null &amp; endDate !=''">
+            and a.alertTime  &lt;= date_sub(#{endDate},interval -1 day)
+        </if>
+        <if test="dept_id != null &amp; dept_id !=''">
+            and e.userID in (SELECT user_id from `user` where dept_id = #{dept_id})
+        </if>
+        ORDER BY  a.alertTime DESC
+    </select>
+</mapper>

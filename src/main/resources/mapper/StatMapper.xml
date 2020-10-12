@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.system.mapper.StatMapper">
+
+
+    <select id="getDate" resultType="java.util.Map">
+        SELECT count(*) as number ,(SELECT equipmentName from equipment where equipmentNO = alert.equipmentNO) as alertEquipment from  alert
+        <where>
+            <if test="startDate != null and startDate != ''">
+                alertTime &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                alertTime &lt;= date_sub(#{endDate},interval -1 day)
+            </if>
+        </where>
+        GROUP BY equipmentNO
+    </select>
+    <select id="getMonth" resultType="java.util.Map">
+        SELECT
+        (SELECT COUNT(*) as number from alert
+        where  alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -1 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL 0 MONTH))) as January,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -2 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -1 MONTH))) as February,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -3 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -2 MONTH))) as March,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -4 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -3 MONTH))) as April,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -5 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -4 MONTH))) as May,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -6 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -5 MONTH))) as June,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -7 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -6 MONTH))) as July,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -8 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -7 MONTH))) as August,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -9 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -8 MONTH))) as September,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -10 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -9 MONTH))) as October,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -11 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -10 MONTH))) as November,
+        (SELECT COUNT(*) as number from alert
+        where alertTime > (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -12 MONTH)) and alertTime &lt; (SELECT DATE_ADD(DATE_FORMAT(NOW(),'%Y-%m-%d'),INTERVAL -11 MONTH))) as December;
+    </select>
+    <select id="getOff_line" resultType="java.util.Map">
+        SELECT count(*) as number,electricStatus from  equipment
+        <where>
+            <if test="userID != null and userID != ''">
+                and userID = #{userID}
+            </if>
+            <if test="dept_id != null and dept_id != ''">
+                and userID in (SELECT user_id from `user` where dept_id = #{dept_id})
+            </if>
+        </where>
+        GROUP BY electricStatus
+    </select>
+</mapper>
