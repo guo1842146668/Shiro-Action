@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Mapper
@@ -44,6 +45,16 @@ public interface UserMapper {
      * 获取所有用户
      */
     List<User> selectAllWithDept(User userQuery);
+
+    /**
+     * 获取所有用户
+     */
+    List<Map<String,Object>> selectOneWithDept(User userQuery);
+
+    /**
+     * 获取所有用户
+     */
+    List<User> selectSecondWithDept(User userQuery);
 
     /**
      * 更改用户的状态为某项值
@@ -91,6 +102,10 @@ public interface UserMapper {
     int updatePasswordByUserId(@Param("userId") Integer userId, @Param("password") String password, @Param("salt") String salt);
 
     int activeUserByUserId(Integer userId);
+
+    List<Map<String,Object>> getOneUser();
+
+
 
 //    selectAllByUsernameLikeAndStatus
 

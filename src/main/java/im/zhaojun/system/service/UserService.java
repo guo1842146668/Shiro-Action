@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -53,6 +50,11 @@ public class UserService {
         return userMapper.selectAllWithDept(userQuery);
     }
 
+    public List<Map<String,Object>> selectOneWithDept(int page, int rows, User userQuery) {
+        PageHelper.startPage(page, rows);
+        return userMapper.selectOneWithDept(userQuery);
+    }
+
     public Integer[] selectRoleIdsById(Integer userId) {
         return userMapper.selectRoleIdsByUserId(userId);
     }
@@ -62,7 +64,7 @@ public class UserService {
         checkUserNameExistOnCreate(user.getUsername());
         String salt = generateSalt();
         String encryptPassword = new Md5Hash(user.getPassword(), salt).toString();
-
+        user.setType(2);
         user.setSalt(salt);
         user.setPassword(encryptPassword);
         userMapper.insert(user);
@@ -207,5 +209,13 @@ public class UserService {
 
     private String generateSalt() {
         return String.valueOf(System.currentTimeMillis());
+    }
+
+    public  List<Map<String,Object>> getOneUser(){
+        return userMapper.getOneUser();
+    }
+
+    public List<Map<String,Object>> getSelectOne(User userQuery) {
+        return userMapper.selectOneWithDept(userQuery);
     }
 }

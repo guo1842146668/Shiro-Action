@@ -17,6 +17,8 @@ public class User implements Serializable {
     @NotBlank(message = "用户名不能为空")
     private String username;
 
+    private String name;
+
     @JsonIgnore
     @NotBlank(message = "密码不能为空", groups = Create.class)
     private String password;
@@ -24,8 +26,11 @@ public class User implements Serializable {
     @JsonIgnore
     private String salt;
 
-    @Email(message = "邮箱格式不正确")
     private String email;
+
+    private String phone;
+
+    private String addr;
 
     private String status;
 
@@ -149,6 +154,30 @@ public class User implements Serializable {
         this.type = type;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddr() {
+        return addr;
+    }
+
+    public void setAddr(String addr) {
+        this.addr = addr;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -165,6 +194,9 @@ public class User implements Serializable {
                 ", deptId=" + deptId +
                 ", deptName='" + deptName + '\'' +
                 ", type='" + type + '\'' +
+                ", name='" + name + '\'' +
+                ", addr='" + addr + '\'' +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 }

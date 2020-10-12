@@ -24,30 +24,30 @@
         <form class="layui-form zadmin-search-area input">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label for="username" class="layui-form-label">用户名</label>
+                    <label for="name" class="layui-form-label">用户名</label>
                     <div class="layui-input-inline">
-                        <input type="text" name="username" autocomplete="off"
-                               id="username" class="layui-input">
+                        <input type="text" name="name" autocomplete="off"
+                               id="name" class="layui-input">
                     </div>
 
-                    <label for="email" class="layui-form-label">邮箱</label>
+                    <label for="addr" class="layui-form-label">所属地</label>
                     <div class="layui-input-inline">
-                        <input type="text" name="email" autocomplete="off"
-                               id="email" class="layui-input">
+                        <input type="text" name="addr" autocomplete="off"
+                               id="addr" class="layui-input">
                     </div>
 
-                    <label for="deptTree" class="layui-form-label">部门</label>
+                    <!--<label for="deptTree" class="layui-form-label">部门</label>
                     <div class="layui-input-inline">
                         <ul id="deptTree" class="dtree" data-id="0" data-value="请选择"></ul>
                         <input type="hidden" id="deptId" name="deptId">
-                    </div>
+                    </div>-->
 
-                    <label for="status" class="layui-form-label">状态</label>
+                    <label for="deptId" class="layui-form-label" style="width: auto">用户级别</label>
                     <div class="layui-input-inline">
-                        <select name="status" id="status">
+                        <select name="deptId" id="deptId">
                             <option value="">请选择</option>
-                            <option value="1">正常</option>
-                            <option value="0">锁定</option>
+                            <option value="0">一级用户</option>
+                            <option value="1">二级用户</option>
                         </select>
                     </div>
 
@@ -61,17 +61,17 @@
         <table class="layui-hide" id="user-table"></table>
     </div>
 
-    <script type="text/html" id="toolbar">
+  <!--  <script type="text/html" id="toolbar">
         <shiro:hasPermission name="user:add">
             <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="add">
                 <i class="zadmin-icon zadmin-icon-xinzeng zadmin-oper-area"></i>
                 新增
             </button>
         </shiro:hasPermission>
-    </script>
+    </script>-->
 
     <script type="text/html" id="column-toolbar">
-        <shiro:hasPermission name="user:update">
+        <!--<shiro:hasPermission name="user:update">
             <a lay-event="edit">
                 <i class="zadmin-icon zadmin-icon-edit-square zadmin-oper-area zadmin-blue" title="编辑"></i>
             </a>
@@ -80,24 +80,15 @@
             <a lay-event="del">
                 <i class="zadmin-icon zadmin-icon-delete zadmin-oper-area zadmin-red" title="删除"></i>
             </a>
-        </shiro:hasPermission>
-
-        <shiro:lacksPermission  name="user:update,user:delete">
+        </shiro:hasPermission>-->
+        <a lay-event="edit">
+            <i class="zadmin-icon zadmin-icon-search zadmin-oper-area zadmin-blue" title="查看"></i>
+        </a>
+        <!--<shiro:lacksPermission  name="user:update,user:delete">
             <i class="zadmin-icon zadmin-icon-wuquanxian zadmin-oper-area zadmin-red"></i>无权限
-        </shiro:lacksPermission>
+        </shiro:lacksPermission>-->
     </script>
 
-
-    <script type="text/html" id="statusTpl">
-        <!-- 不能禁用自己 -->
-        {{#  if('<shiro:principal property="username"/>' == d.username) { }}
-            <input type="checkbox" disabled name="status" value="{{d.userId}}" lay-skin="switch" lay-text="正常|锁定" lay-filter="status" {{ d.status == '1' ? 'checked' : '' }}>
-        {{#  } }}
-
-        {{#  if('<shiro:principal property="username"/>' !== d.username) { }}
-            <input type="checkbox" name="status" value="{{d.userId}}" lay-skin="switch" lay-text="正常|锁定" lay-filter="status" {{ d.status == '1' ? 'checked' : '' }}>
-        {{#  } }}
-    </script>
 
     <script th:src="@{/lib/jquery/jquery.min.js}"></script>
     <script th:src="@{/lib/layui/layui.js}"></script>
@@ -110,12 +101,11 @@
             var table = layui.table;
             var $ = layui.$;
             var form = layui.form;
-            var dtree = layui.dtree;
             var tablePlug = layui.tablePlug;
 
             tablePlug.smartReload.enable(true);
 
-            dtree.renderSelect({
+            /*dtree.renderSelect({
                 elem: "#deptTree",
                 url: "/dept/tree",
                 dataStyle: "layuiStyle",
@@ -142,7 +132,7 @@
                 } else {
                     typeDom.val(obj.param.nodeId)
                 }
-            });
+            });*/
 
             table.render({
                 elem: '#user-table'
@@ -154,12 +144,23 @@
                     [
                         {type: 'numbers', title: '序号', width: "5%"}
                         ,{field: 'userId', title: 'ID', width: "10%", hide: true}
-                        , {field: 'username', title: '用户名', width: "15%"}
-                        , {field: 'deptName', title: '部门', width: "12%"}
-                        , {field: 'email', title: '邮箱', width: "12%"}
-                        , {field: 'createTime', title: '创建时间', width: "12%"}
-                        , {field: 'lastLoginTime', title: '最后登陆时间', width: "12%"}
-                        , {field: 'status', title: '状态', templet: "#statusTpl", width: "12%"}
+                        , {field: 'name', title: '用户名', width: "20%"}
+                        , {field: 'addr', title: '所属地', width: "40%"}
+                        , {field: 'phone', title: '电话', width: "20%"}
+                        , {field: 'deptId', title: '用户级别', width: "10%",templet: function(d){
+                            if(d.deptId == 0){
+                                return "一级用户";
+                            }else if(d.deptId == null){
+                                return  "未分配";
+                            }else if(d.deptId == -1){
+                                return  "管理员";
+                            }else{
+                                return  "二级用户";
+                            }
+                        }}
+                        /*, {field: 'createTime', title: '创建时间', width: "12%"}
+                        , {field: 'lastLoginTime', title: '最后登陆时间', width: "12%"}*/
+                        /*, {field: 'status', title: '状态', templet: "#statusTpl", width: "12%"}*/
                         , {title: '操作', fixed: 'right', align: 'center', toolbar: '#column-toolbar'}
                     ]
                 ]
@@ -178,7 +179,7 @@
                 }
             });
 
-            // 工具条点击事件
+            /*// 工具条点击事件
             table.on('toolbar', function (obj) {
                 var data = obj.data;
                 var event = obj.event;
@@ -186,7 +187,7 @@
                 if (event === 'add') {
                     add();
                 }
-            });
+            });*/
 
             // 行点击事件 重置密码
             table.on('tool', function (obj) {
@@ -219,21 +220,7 @@
                 parent.layer.msg("激活成功", {icon: 6});
             }
 
-            function add() {
-                layer.open({
-                    content: "/user",
-                    title: "新增用户",
-                    area: ['40%', '85%'],
-                    type: 2,
-                    maxmin: true,
-                    shadeClose: true,
-                    end: function () {
-                        table.reload('user-table');
-                    }
-                });
-            }
-
-            function del(obj) {
+         /*   function del(obj) {
                 layer.confirm("确定删除用户吗?", {icon: 3, title: '提示'},
                     function (index) {//确定回调
                         var id = obj.data.userId;
@@ -250,11 +237,11 @@
             function deleteDone(data) {
                 parent.layer.msg("删除成功", {icon: 6});
                 table.reload('user-table');
-            }
+            }*/
 
             function edit(id) {
                 layer.open({
-                    content: '/user/' + id,
+                    content: '/user/select?userId=' + id,
                     title: "编辑",
                     area: ['40%', '85%'],
                     type: 2,

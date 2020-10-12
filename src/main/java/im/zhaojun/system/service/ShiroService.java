@@ -66,6 +66,11 @@ public class ShiroService {
         filterChainDefinitionMap.put("/equipment/open", "anon");
         filterChainDefinitionMap.put("/equipment/down", "anon");
         filterChainDefinitionMap.put("/scheduled/openingTiming", "anon");
+        filterChainDefinitionMap.put("/advertising/index", "anon");
+        filterChainDefinitionMap.put("/equipment/read", "anon");
+        filterChainDefinitionMap.put("/scheduled/openingTiming", "anon");
+        filterChainDefinitionMap.put("/equipment/uploadExcel", "anon");
+
         List<Menu> menuList = menuService.getLeafNodeMenu();
         for (Menu menu : menuList) {
             String url = menu.getUrl();

@@ -6,8 +6,8 @@ import im.zhaojun.common.util.PageResultBean;
 import im.zhaojun.common.util.ResultBean;
 import im.zhaojun.common.validate.groups.Create;
 import im.zhaojun.system.model.User;
-import im.zhaojun.system.service.RoleService;
 import im.zhaojun.system.service.UserService;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -24,12 +25,20 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @Resource
-    private RoleService roleService;
 
     @GetMapping("/index")
     public String index() {
-        return "user/user-list";
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        if(user.getType() == 1){
+            return "user/admin-list";
+        }else{
+            if(user.getDeptId() == 0){
+                return "user/one-list";
+            }else{
+                return "user/second-list";
+            }
+        }
+
     }
 
     @OperationLog("获取用户列表")
@@ -43,18 +52,45 @@ public class UserController {
         return new PageResultBean<>(userPageInfo.getTotal(), userPageInfo.getList());
     }
 
-    @GetMapping
-    public String add(Model model) {
-        model.addAttribute("roles", roleService.selectAll());
+    @OperationLog("获取用户列表")
+    @GetMapping("/oneList")
+    @ResponseBody
+    public PageResultBean<Map<String,Object>> getOneList(@RequestParam(value = "page", defaultValue = "1") int page,
+                                        @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                        User userQuery) {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        userQuery.setUserId(user.getUserId());
+        List<Map<String,Object>> users = userService.selectOneWithDept(page, limit, userQuery);
+        PageInfo<Map<String,Object>> userPageInfo = new PageInfo<>(users);
+        return new PageResultBean<>(userPageInfo.getTotal(), userPageInfo.getList());
+    }
+
+    @OperationLog("获取用户列表")
+    @GetMapping("/secondList")
+    @ResponseBody
+    public PageResultBean<User> getSecondList(@RequestParam(value = "page", defaultValue = "1") int page,
+                                           @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                           User userQuery) {
+        List<User> users = userService.selectAllWithDept(page, limit, userQuery);
+        PageInfo<User> userPageInfo = new PageInfo<>(users);
+        return new PageResultBean<>(userPageInfo.getTotal(), userPageInfo.getList());
+    }
+
+    @GetMapping("/getOneUser")
+    @ResponseBody
+    public ResultBean getOneUser(){
+        return  ResultBean.success(userService.getOneUser());
+    }
+
+    @GetMapping("/add")
+    public String add() {
         return "user/user-add";
     }
 
-    @GetMapping("/{userId}")
-    public String update(@PathVariable("userId") Integer userId, Model model) {
-        model.addAttribute("roleIds", userService.selectRoleIdsById(userId));
+    @GetMapping("/select")
+    public String selectOne(Integer userId, Model model) {
         model.addAttribute("user", userService.selectOne(userId));
-        model.addAttribute("roles", roleService.selectAll());
-        return "user/user-add";
+        return "user/user-view";
     }
 
     @OperationLog("编辑角色")
@@ -107,4 +143,6 @@ public class UserController {
         userService.updatePasswordByUserId(userId, password);
         return ResultBean.success();
     }
+
+
 }

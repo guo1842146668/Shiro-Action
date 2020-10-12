@@ -5,8 +5,11 @@
     <resultMap id="BaseResultMap" type="im.zhaojun.system.model.User">
         <id column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="salt" jdbcType="VARCHAR" property="salt"/>
+        <result column="addr" jdbcType="VARCHAR" property="addr"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="status" jdbcType="CHAR" property="status"/>
         <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
@@ -19,6 +22,7 @@
     <sql id="Base_Column_List">
             user_id,
             username,
+            name,
             password,
             salt,
             email,
@@ -28,7 +32,9 @@
             modify_time,
             active_code,
             dept_id,
-            type
+            type,
+            addr,
+            phone
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -46,11 +52,11 @@
 
     <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="im.zhaojun.system.model.User"
             useGeneratedKeys="true">
-        insert into user (username, password, salt,
-                          email, status, last_login_time, active_code, dept_id)
-        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{salt,jdbcType=VARCHAR},
-                #{email,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{lastLoginTime,jdbcType=TIMESTAMP},
-                #{activeCode,jdbcType=VARCHAR}, #{deptId,jdbcType=INTEGER})
+        insert into user (username,name, password, salt,phone,addr,
+                          email, status, last_login_time, active_code, dept_id,type)
+        values (#{username,jdbcType=VARCHAR},#{name}, #{password,jdbcType=VARCHAR}, #{salt,jdbcType=VARCHAR},
+                #{phone},#{addr},#{email,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{lastLoginTime,jdbcType=TIMESTAMP},
+                #{activeCode,jdbcType=VARCHAR}, #{deptId,jdbcType=INTEGER},#{type})
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="im.zhaojun.system.model.User">
         update user
@@ -196,6 +202,7 @@
     <select id="selectAllWithDept" resultMap="BaseResultMap">
         select u.user_id,
                u.username,
+               u.name,
                u.password,
                u.salt,
                u.email,
@@ -205,23 +212,68 @@
                u.modify_time,
                u.active_code,
                u.dept_id,
-               d.dept_name
-        from user u
-                 left join dept d on u.dept_id = d.dept_id
+               u.addr,
+               u.phone
+        from user as u
         <where>
-            <if test="username != null and username != ''">
-                AND u.username = #{username}
+            <if test="name != null and name != ''">
+                and u.name = #{name}
             </if>
-            <if test="email != null and email != ''">
-                AND u.email = #{email}
+            <if test="addr != null and addr != ''">
+                and u.addr = #{addr}
             </if>
-            <if test="status != null and status != ''">
-                AND u.status = #{status}
+            <if test="deptId == 0">
+                and u.dept_id  = #{deptId}
             </if>
-            <if test="deptId != null and deptId != ''">
-                AND d.dept_id = #{deptId}
+            <if test="deptId == 1">
+                and u.dept_id  >= #{deptId}
             </if>
         </where>
+
+    </select>
+    <select id="selectOneWithDept" resultType="map">
+        select u.user_id, u.name,
+        (SELECT COUNT(*) FROM user where dept_id =  #{userId}) as erji,
+        (SELECT COUNT(*) FROM equipment where userID = u.user_id) as shebei,
+        (SELECT COUNT(*) FROM equipment where userID = u.user_id and electricStatus > 0) as zaixian,
+        u.status,
+        u.last_login_time,
+        u.create_time,
+        u.modify_time,
+        u.active_code,
+        u.dept_id,
+        u.addr,
+        u.phone
+        from user as u where dept_id  = #{userId}
+
+            <if test="name != null and name != ''">
+                and u.name = #{name}
+            </if>
+            <if test="addr != null and addr != ''">
+                and u.addr = #{addr}
+            </if>
+            <if test="phone != null and phone != ''">
+                and u.phone = #{phone}
+            </if>
+    </select>
+    <select id="selectSecondWithDept" resultType="im.zhaojun.system.model.User">
+        select u.user_id,
+               u.username,
+               u.password,
+               u.salt,
+               u.email,
+               u.status,
+               u.last_login_time,
+               u.create_time,
+               u.modify_time,
+               u.active_code,
+               u.dept_id,
+               u.addr,
+               u.phone
+        from user as u where dept_id >=1
+    </select>
+    <select id="getOneUser" resultType="java.util.Map">
+        select  user_id,username from user where dept_id = 0
     </select>
 
     <update id="activeUserByUserId">
