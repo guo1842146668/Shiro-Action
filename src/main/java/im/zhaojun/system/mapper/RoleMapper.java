@@ -4,6 +4,7 @@ import im.zhaojun.system.model.Role;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface RoleMapper {
@@ -20,4 +21,6 @@ public interface RoleMapper {
     List<Role> selectAllByQuery(Role roleQuery);
 
     int count();
+
+    Map<String,Object> selectByUserID(Integer userID);
 }

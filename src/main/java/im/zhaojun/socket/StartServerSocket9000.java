@@ -2,6 +2,7 @@ package im.zhaojun.socket;
 
 import im.zhaojun.system.service.AlertService;
 import im.zhaojun.system.service.EquipmentService;
+import im.zhaojun.system.service.ScheduledService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,9 +17,12 @@ public class StartServerSocket9000 implements Runnable {
 
     private AlertService alertService;
 
-    public StartServerSocket9000(EquipmentService equipmentService,AlertService alertService) {
+    private ScheduledService scheduledService;
+
+    public StartServerSocket9000(EquipmentService equipmentService,AlertService alertService,ScheduledService scheduledService) {
         this.equipmentService=equipmentService;
         this.alertService=alertService;
+        this.scheduledService=scheduledService;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class StartServerSocket9000 implements Runnable {
                 socket = server.accept();
                 String address = socket.getInetAddress().getHostAddress();//客户端ip
                 if (HairUtil.map.get(address) == null) {
-                    new Thread(new ServerThread9000(socket,equipmentService,alertService)).start();
+                    new Thread(new ServerThread9000(socket,equipmentService,alertService,scheduledService)).start();
                 }
             }
             server.close();

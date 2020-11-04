@@ -60,4 +60,8 @@
         count(*)
         from role
     </select>
+    <select id="selectByUserID" resultType="java.util.Map">
+        select  * from user_role where user_id = #{userID}
+    </select>
+
 </mapper>

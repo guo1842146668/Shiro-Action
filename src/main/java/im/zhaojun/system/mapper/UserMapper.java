@@ -44,12 +44,17 @@ public interface UserMapper {
     /**
      * 获取所有用户
      */
-    List<User> selectAllWithDept(User userQuery);
+    List<Map<String,Object>> selectAllWithDept(User userQuery);
 
     /**
      * 获取所有用户
      */
     List<Map<String,Object>> selectOneWithDept(User userQuery);
+
+    /**
+     * 获取所有用户
+     */
+    List<Map<String,Object>> selectAdminOne();
 
     /**
      * 获取所有用户
@@ -105,7 +110,20 @@ public interface UserMapper {
 
     List<Map<String,Object>> getOneUser();
 
+    List<Map<String,Object>> getAdmin();
 
+    /**
+     * 根据父级分类查询一级用户下的所有的二级用户
+     * @param deptID
+     * @return
+     */
+    List<Map<String,Object>> getByDeptID(Integer deptID);
+
+    List<Map<String,Object>> getByDeptIDAdmin();
+
+    User getByName(String name);
+
+    int updateDeptID(Integer userID);
 
 //    selectAllByUsernameLikeAndStatus
 

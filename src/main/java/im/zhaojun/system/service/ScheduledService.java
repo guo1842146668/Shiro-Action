@@ -52,4 +52,8 @@ public class ScheduledService {
     public List<Scheduled> getByCronId(String equipmentNO){
         return scheduledMapper.getByCronId(equipmentNO);
     }
+
+    public int saveScheduled(Scheduled scheduled){
+        return scheduledMapper.saveScheduled(scheduled);
+    }
 }

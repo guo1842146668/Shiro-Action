@@ -48,6 +48,16 @@ public class User implements Serializable {
 
     private Integer type;
 
+    private String ClearCode;
+
+    public String getClearCode() {
+        return ClearCode;
+    }
+
+    public void setClearCode(String clearCode) {
+        ClearCode = clearCode;
+    }
+
     private String deptName;
 
     public Integer getUserId() {

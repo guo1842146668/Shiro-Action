@@ -13,7 +13,6 @@ import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -76,26 +75,36 @@ public class ScheduledController {
     @GetMapping("/openingTiming")
     @ResponseBody
     public String openingTiming(String iccid,String hour1,String minute1,String hour2,String minute2,Integer ID) {
-            List<String> list = new ArrayList<>();
-            List<Map<String, Object>> maps = scheduledService.listByEquipmentNO(iccid);
-            for (int i = 0; i < maps.size(); i++) {
-                if (maps.get(i).get("cronStartTime").equals("00:00") && maps.get(i).get("cronEndTime").equals("00:00")) {
+        List<String> list = new ArrayList<>();
+        List<Map<String, Object>> maps = scheduledService.listByEquipmentNO(iccid);
+        for (int i = 0; i < maps.size(); i++) {
+            if (maps.get(i).get("cronStartTime").equals("00:00") && maps.get(i).get("cronEndTime").equals("00:00")) {
 
-                } else {
-                    list.add(maps.get(i).get("cronStartTime") + "-" + maps.get(i).get("cronEndTime"));
-                }
+            } else {
+                list.add(maps.get(i).get("cronStartTime") + "-" + maps.get(i).get("cronEndTime"));
             }
-            if (ReadFile.checkOverlap(list)) {
-                return "存在重复时间";
-            }
-            String num = null;
-            if(ID%5==0){
-                num = "5";
-            }else{
-                num = ""+ID%5+"";
-            }
-            ServerThread9000.setTheStartAndStopTime(ServerThread9000.Division(iccid), hour1, minute1, hour2, minute2,num);
+        }
+        if (ReadFile.checkOverlap(list)) {
+            return "存在重复时间";
+        }
+        String num = null;
+        if(ID%5==0){
+            num = "5";
+        }else{
+            num = ""+ID%5+"";
+        }
+        ServerThread9000.setTheStartAndStopTime(ServerThread9000.Division(iccid), hour1, minute1, hour2, minute2,num);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Map<String, Object> map = scheduledService.selectOne(ID);
+        if(map.get("cronStartTime").equals(hour1+":"+minute1) && map.get("cronEndTime").equals(hour2+":"+minute2)){
             return "success";
+        }else{
+            return "error";
+        }
     }
 
 
@@ -120,16 +129,8 @@ public class ScheduledController {
         }
         String s = openingTiming(scheduledByID.getEquipmentNO(), split[0], split[1], split1[0], split1[1], cronId);
         if(!s.equals("success")){
-            return "设置定时失败";
+            return "error";
         }
-        scheduledByID.setCronStartTime(startTime);
-        scheduledByID.setCronEndTime(endTime);
-        if(startTime.equals("00:00")&&endTime.equals("00:00")){
-            scheduledByID.setCronStatus(-1);
-        }else{
-            scheduledByID.setCronStatus(1);
-        }
-        scheduledService.updateScheduled(scheduledByID);
         return "success";
     }
 }

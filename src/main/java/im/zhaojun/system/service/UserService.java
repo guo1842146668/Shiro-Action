@@ -45,7 +45,7 @@ public class UserService {
     @Resource
     private ShiroActionProperties shiroActionProperties;
 
-    public List<User> selectAllWithDept(int page, int rows, User userQuery) {
+    public List<Map<String,Object>> selectAllWithDept(int page, int rows, User userQuery) {
         PageHelper.startPage(page, rows);
         return userMapper.selectAllWithDept(userQuery);
     }
@@ -61,6 +61,7 @@ public class UserService {
 
     @Transactional
     public Integer add(User user, Integer[] roleIds) {
+        user.setClearCode(user.getPassword());
         checkUserNameExistOnCreate(user.getUsername());
         String salt = generateSalt();
         String encryptPassword = new Md5Hash(user.getPassword(), salt).toString();
@@ -97,6 +98,7 @@ public class UserService {
 
     @Transactional
     public boolean update(User user, Integer[] roleIds) {
+        userMapper.updateDeptID(user.getUserId());
         checkUserNameExistOnUpdate(user);
         grantRole(user.getUserId(), roleIds);
         return userMapper.updateByPrimaryKeySelective(user) == 1;
@@ -172,6 +174,7 @@ public class UserService {
         if (shiroActionProperties.getSuperAdminUsername().equals(user.getUsername())) {
             throw new UnauthorizedException("试图删除超级管理员, 被禁止.");
         }
+        userMapper.updateDeptID(userId);
         userAuthsService.deleteByUserId(userId);
         userMapper.deleteByPrimaryKey(userId);
         userRoleMapper.deleteUserRoleByUserId(userId);
@@ -215,7 +218,34 @@ public class UserService {
         return userMapper.getOneUser();
     }
 
+    public  List<Map<String,Object>> getAdmin(){
+        return userMapper.getAdmin();
+    }
+
     public List<Map<String,Object>> getSelectOne(User userQuery) {
         return userMapper.selectOneWithDept(userQuery);
     }
+
+    public List<Map<String,Object>> selectAdminOne(){
+        return userMapper.selectAdminOne();
+    }
+
+    public List<Map<String,Object>> getByDeptID(Integer page,Integer limit, Integer deptID){
+        PageHelper.startPage(page, limit);
+        return userMapper.getByDeptID(deptID);
+    }
+
+    public List<Map<String,Object>> getByDeptIDAdmin(Integer page,Integer limit){
+        PageHelper.startPage(page, limit);
+        return userMapper.getByDeptIDAdmin();
+    }
+
+    public User getByName(String name){
+        return  userMapper.getByName(name);
+    }
+
+    public List<Map<String,Object>> selectAllWithDept(User userQuery) {
+        return userMapper.selectAllWithDept(userQuery);
+    }
+
 }

@@ -1,11 +1,14 @@
 package im.zhaojun.system.service;
 
+import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.PageHelper;
+import im.zhaojun.system.controller.WebSocketServer;
 import im.zhaojun.system.mapper.EquipmentMapper;
 import im.zhaojun.system.model.Equipment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +27,6 @@ public class EquipmentService {
 
     public List<Map<String, Object>> listAll(Equipment equipment, Integer page, Integer count) {
         PageHelper.startPage(page, count);
-        /*PageHelper.startPage(page,count);
-        List<Map<String, Object>> alert = equipmentMapper.listAll(equipment);
-        PageInfo<Map<String, Object>> pageInfo=new PageInfo<>(alert);*/
         return equipmentMapper.listAll(equipment);
     }
 
@@ -51,6 +51,19 @@ public class EquipmentService {
     }
 
     public int updateByEquipmentNo(Equipment equipment){
+
+        try {
+            Map<String, Object> map = equipmentMapper.selectByEquipmentNO(equipment.getEquipmentNO());
+            if(!map.get("electricStatus").equals(equipment.getElectricStatus()) || !map.get("runningState").equals(equipment.getRunningState()) || !map.get("OperationMode").equals(equipment.getOperationMode()) || !map.get("FaultStatus").equals(equipment.getFaultStatus())){
+                WebSocketServer.sendInfo("true","20");
+                WebSocketServer.sendInfo("true","100");
+            }
+            if(!map.get("electricCurrentIA").equals(equipment.getElectricCurrentIA()) || !map.get("electricCurrentIB").equals(equipment.getElectricCurrentIB()) || !map.get("electricCurrentIC").equals(equipment.getElectricCurrentIC())){
+                WebSocketServer.sendInfo(JSONUtil.toJsonStr(JSONUtil.parseObj(equipment)),"30");
+            }
+        }catch (Exception e){
+            return  0;
+        }
         return equipmentMapper.updateByEquipmentNo(equipment);
     }
 

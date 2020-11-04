@@ -126,38 +126,33 @@
     </delete>
 
     <select id="listAll" parameterType="im.zhaojun.system.model.Equipment" resultType="java.util.Map">
-        select  <include refid="Base_Column_List"/>
-        ,(SELECT username from user where user_id = equipment.userID) as username
-        ,(SELECT dictName from dict where dictID = equipment.equipmentType) as equipmentTypeName
-        from equipment
-       <where>
-
-                <if test="equipmentNO !=  null and equipmentNO != ''">
-                    equipmentNO like "%"#{equipmentNO}"%"
-                </if>
-                <if test="equipmentName != null and equipmentName !=''" >
-                  and   equipmentName like "%"#{equipmentName}"%"
-                </if>
-                <if test="equipmentAddress != null and equipmentAddress !=''">
-                  and   equipmentAddress like "%"#{equipmentAddress}"%"
-                </if>
-                <if test="equipmentType != null and equipmentType !=''">
-                  and   equipmentType like "%"#{equipmentType}"%"
-                </if>
-                <if test="userID != null and userID !=''">
-                  and   userID like "%"#{userID}"%"
-                </if>
-               <if test="equipmentID != null and equipmentID !=''">
-                   and   userID in (SELECT user_id from `user` where dept_id = #{equipmentID})
-               </if>
-
-        </where>
-        order by electricStatus desc
+        SELECT * from equipmentorderby where  electricStatus = 1
+        <if test="equipmentNO != null and equipmentNO != ''">
+            and equipmentNO like "%"#{equipmentNO}"%"
+        </if>
+        <if test="equipmentAddress != null and equipmentAddress != ''">
+            and equipmentAddress like "%"#{equipmentAddress}"%"
+        </if>
+        <if test="equipmentType != null and equipmentType != ''">
+            and equipmentType = #{equipmentType}
+        </if>
+        UNION ALL
+        SELECT * from equipmentorderby where (electricStatus != 1  OR electricStatus is NULL)
+        <if test="equipmentNO != null and equipmentNO != ''">
+            and equipmentNO like "%"#{equipmentNO}"%"
+        </if>
+        <if test="equipmentAddress != null and equipmentAddress != ''">
+            and equipmentAddress like "%"#{equipmentAddress}"%"
+        </if>
+        <if test="equipmentType != null and equipmentType != ''">
+            and equipmentType = #{equipmentType}
+        </if>
     </select>
 
     <select id="selectOne" resultType="java.util.Map">
         select  <include refid="Base_Column_List"/>
         ,(SELECT username from user where user_id = equipment.userID) as username
+        ,(SELECT dept_id from user where user_id = equipment.userID) as dept_id
         ,(SELECT dictName from dict where dictID = equipment.equipmentType) as equipmentTypeName
         from equipment WHERE equipmentID = #{equipmentID}
     </select>

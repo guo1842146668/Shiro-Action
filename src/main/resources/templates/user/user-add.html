@@ -137,11 +137,11 @@
             base: '/lib/layui/extend/'
         }).extend({
             formSelects: 'formSelects-v4'
-        }).use(['form', 'layer', 'formSelects'], function () {
+        }).use(['form', 'layer', 'formSelects','element'], function () {
             $ = layui.jquery;
             var form = layui.form
                 , layer = layui.layer
-
+                , element = layui.element;
 
 
             form.on('submit(add)', function (form) {
@@ -156,14 +156,28 @@
 
             function addDone(data) {
                 layer.msg("添加成功", {icon: 6});
+                setTimeout(function (){
+                    window.parent.location.reload();
+                    top.layui.element.tabDelete("lay-tab", top.jQuery(".layui-tab-title .layui-this").attr("lay-id"));
+                }, 2000);
+
             }
 
             form.on('select(search_type)', function(data){
 
                 if(data.value == 2){
-                    var html_one='<option value="-1">管理员</option>';
-                    $("#deptId").html(html_one);
-                    form.render('select');
+                    $.ajax({
+                        url: "getAdmin",
+                        type:"get",
+                        success: function(data){
+                            console.log(data);
+                            var html_two='';
+                            for (var i = 0; i < data.data.length; i++) {
+                                    html_two += "<option value='"+data.data[i].user_id+"' selected>"+data.data[i].username+"</option>"
+                            }
+                            $("#deptId").html(html_two);
+                            form.render('select');//select是固定写法 不是选择器
+                        }});
                 }else if(data.value == 3){
 
                     $.ajax({

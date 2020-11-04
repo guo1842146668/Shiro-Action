@@ -3,10 +3,13 @@ package im.zhaojun.socket;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.sql.visitor.functions.Char;
+import im.zhaojun.system.controller.WebSocketServer;
 import im.zhaojun.system.model.Alert;
 import im.zhaojun.system.model.Equipment;
+import im.zhaojun.system.model.Scheduled;
 import im.zhaojun.system.service.AlertService;
 import im.zhaojun.system.service.EquipmentService;
+import im.zhaojun.system.service.ScheduledService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +27,12 @@ import java.util.*;
  */
 
 public class ServerThread9000 implements Runnable {
-    @Resource
+
     private  EquipmentService equipmentService;
-    @Resource
+
     private AlertService alertService;
+
+    private ScheduledService scheduledService;
 
     private static Logger logger = LoggerFactory.getLogger(ServerThread9000.class);
 
@@ -43,13 +48,14 @@ public class ServerThread9000 implements Runnable {
 
     public static List<String> lists = new LinkedList<>();
 
-    public ServerThread9000(Socket client,EquipmentService equipmentService,AlertService alertService) {
+    public ServerThread9000(Socket client,EquipmentService equipmentService,AlertService alertService,ScheduledService scheduledService) {
         try {
             this.socketSpace.setSocket(client);
             this.socketSpace.setIs(client.getInputStream());
             this.socketSpace.setOut(new PrintStream(client.getOutputStream()));
             this.equipmentService=equipmentService;
             this.alertService=alertService;
+            this.scheduledService=scheduledService;
             address = client.getInetAddress().getHostAddress();//客户端ip
             this.mapPut();
         } catch (IOException e) {
@@ -92,12 +98,12 @@ public class ServerThread9000 implements Runnable {
                     ICCID_IP.put(ICCID, address);
                     System.out.println("ip地址map = "+ ICCID_IP);
                     Map<String, Object> map = equipmentService.selectByEquipmentNO(HexadecimalToDecimal(ICCID));
-                    if(map == null){
+                    /*if(map == null){
                         Equipment equipment = new Equipment();
                         equipment.setEquipmentName("新设备");
                         equipment.setEquipmentNO(HexadecimalToDecimal(ICCID));
                         equipmentService.saveEquipment(equipment);
-                    }
+                    }*/
                     if (dataArrays[10].equals("02")) {
                         //readTheParsing(dataArrays);
                         //解析
@@ -117,6 +123,7 @@ public class ServerThread9000 implements Runnable {
                                 alert.setAlertTime(new Date());
                                 alert.setEquipmentNO(HexadecimalToDecimal(ICCID));
                                 alertService.saveAlert(alert);
+
                             }
                         }
                         equipmentService.updateByEquipmentNo(equipment);
@@ -126,6 +133,21 @@ public class ServerThread9000 implements Runnable {
                         /*Thread.sleep(2000);
                         //读取
                         read(ICCID);*/
+                    }else if(dataArrays[10].equals("04")){
+                        //设置定时回复
+                        List<Scheduled> byCronId = scheduledService.getByCronId(HexadecimalToDecimal(ICCID));
+                        Map<String, Object> map1 = readTiming(dataArrays);
+                        Scheduled scheduled = byCronId.get(Integer.parseInt(map1.get("cron_id").toString())-1);
+                        if(map1.get("cronStartTime").equals("00:00") && map1.get("cronEndTime").equals("00:00")){
+                            scheduled.setCronStartTime(map1.get("cronStartTime").toString());
+                            scheduled.setCronEndTime(map1.get("cronEndTime").toString());
+                            scheduled.setCronStatus(-1);
+                        }else{
+                            scheduled.setCronStartTime(map1.get("cronStartTime").toString());
+                            scheduled.setCronEndTime(map1.get("cronEndTime").toString());
+                            scheduled.setCronStatus(1);
+                        }
+                        scheduledService.updateScheduled(scheduled);
                     }
                 }
             }
@@ -439,6 +461,26 @@ public class ServerThread9000 implements Runnable {
         System.out.println("时控 = "+iccid);
         HairUtil.send(CRC16.getCrc(sb.toString()), ICCID_IP.get(iccid+" "));
     }
+
+    /**
+     * 读取解析
+     */
+    public static Map<String,Object> readTiming(String[] dataArrays){
+        Map<String,Object> map = new HashMap<>();
+        //电流A
+        //String currentA=new BigInteger(dataArrays[11]+dataArrays[12],16).toString(10);
+        map.put("cron_id",HexadecimalToDecimal(dataArrays[11]));
+        //电流B
+        // String currentB=new BigInteger(dataArrays[13]+dataArrays[14],16).toString(10);
+        map.put("cronStartTime",HexadecimalToDecimal(dataArrays[12])+":"+HexadecimalToDecimal(dataArrays[13]));
+        //电流C
+        //String currentC=new BigInteger(dataArrays[15]+dataArrays[16],16).toString(10);
+        map.put("cronEndTime",HexadecimalToDecimal(dataArrays[14])+":"+HexadecimalToDecimal(dataArrays[15]));
+        return map;
+    }
+
+
+
 
 
     /**

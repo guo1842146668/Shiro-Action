@@ -70,6 +70,7 @@ public class ShiroService {
         filterChainDefinitionMap.put("/equipment/read", "anon");
         filterChainDefinitionMap.put("/scheduled/openingTiming", "anon");
         filterChainDefinitionMap.put("/equipment/uploadExcel", "anon");
+        filterChainDefinitionMap.put("/advertising/preview", "anon");
 
         List<Menu> menuList = menuService.getLeafNodeMenu();
         for (Menu menu : menuList) {

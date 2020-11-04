@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class ExprotExcel {
         OutputStream fOut = null;
         try {
             fOut = response.getOutputStream();
-            fileName = java.net.URLEncoder.encode("信息_"  + proMonth, "UTF-8");
+            fileName = URLEncoder.encode("信息_"  + proMonth, "UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes(),"iso-8859-1") + ".xlsx");
             int rowCount = 1;
 
@@ -48,7 +49,7 @@ public class ExprotExcel {
             sheet.autoSizeColumn(10);
             //bankHuizhiList.get(0).size()在map中有多少条数据创建多少个列， 需要控制select 查询返回的列数
             for (int i=0;i<biaotoulsit.size();i++){
-                sheet.setColumnWidth(i,5120);
+                sheet.setColumnWidth(i,11740);
             }
 
             sheet.createFreezePane(0, 2, 0, 2); // 冻结
@@ -69,13 +70,13 @@ public class ExprotExcel {
             headerFont1.setFontHeightInPoints((short) 20); // 设置字体大小
             style2.setFont(headerFont1); // 为标题样式设置字体样式
 
- XSSFRow row1 = sheet.createRow((int) 0);
+            XSSFRow row1 = sheet.createRow((int) 0);
             row1.setHeightInPoints(50);// 设备标题的高度
             XSSFCell cell1 = row1.createCell(0);// 创建标题第一列
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0,bankHuizhiList.get(0).size())); // 合并第0到第 结尾 列
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0,/*bankHuizhiList.get(0).size()*/3)); // 合并第0到第 结尾 列
 
 
- cell1.setCellValue("信息"); // 设置值标题
+            cell1.setCellValue("设备信息"); // 设置值标题
             cell1.setCellStyle(style2);// 设置标题样式
 
 
@@ -83,6 +84,8 @@ public class ExprotExcel {
             bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//加粗
 
             XSSFCellStyle titleStyle = workbook.createCellStyle();
+            XSSFDataFormat format = workbook.createDataFormat();
+            titleStyle.setDataFormat(format.getFormat("@"));
             titleStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);//左右居中
             titleStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);//上下居中
 
@@ -114,7 +117,7 @@ public class ExprotExcel {
             XSSFCellStyle dataStyle = workbook.createCellStyle(); // 样式对象
             dataStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);//左右居中
             dataStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER);//上下居中
-
+            dataStyle.setDataFormat(format.getFormat("@"));
             //边框填充
             dataStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); //下边框
             dataStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN);//左边框

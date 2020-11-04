@@ -9,7 +9,6 @@ import im.zhaojun.system.service.DictService;
 import im.zhaojun.tool.DictEnum;
 import im.zhaojun.tool.ReadFile;
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +63,7 @@ public class AdvertisingController {
     @PostMapping("/preview")
     public String preview(Model model,String name) {
         List<Map<String, Object>> guide = dictService.getGuide(DictEnum.CustomerType);
-        model.addAttribute("path","http://localhost:8082//"+guide.get(0).get("dictName")+"//"+name);
+        model.addAttribute("path","http://115.29.203.105:80//advertising/preview/"+guide.get(0).get("dictName")+"//"+name);
         return "Advertising/advertising-preview";
     }
 
@@ -77,7 +76,7 @@ public class AdvertisingController {
         resource = resource.substring(0,resource.lastIndexOf(guide.get(1).get("dictName").toString()));
         resource = resource.substring(5,resource.length());
         String path=resource + guide.get(0).get("dictName");
-        File file = new File(path+name);
+        File file = new File(path+File.separator+name);
         if(file.exists()){
             file.delete();
             return  ResultBean.success();

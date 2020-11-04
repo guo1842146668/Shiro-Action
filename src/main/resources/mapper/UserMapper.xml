@@ -17,6 +17,7 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="dept_id" jdbcType="INTEGER" property="deptId"/>
         <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="ClearCode" jdbcType="VARCHAR" property="ClearCode"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -34,7 +35,8 @@
             dept_id,
             type,
             addr,
-            phone
+            phone,
+            ClearCode
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -53,10 +55,10 @@
     <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="im.zhaojun.system.model.User"
             useGeneratedKeys="true">
         insert into user (username,name, password, salt,phone,addr,
-                          email, status, last_login_time, active_code, dept_id,type)
+                          email, status, last_login_time, active_code, dept_id,type,ClearCode)
         values (#{username,jdbcType=VARCHAR},#{name}, #{password,jdbcType=VARCHAR}, #{salt,jdbcType=VARCHAR},
                 #{phone},#{addr},#{email,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{lastLoginTime,jdbcType=TIMESTAMP},
-                #{activeCode,jdbcType=VARCHAR}, #{deptId,jdbcType=INTEGER},#{type})
+                #{activeCode,jdbcType=VARCHAR}, #{deptId,jdbcType=INTEGER},#{type},#{ClearCode,jdbcType=VARCHAR})
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="im.zhaojun.system.model.User">
         update user
@@ -80,7 +82,19 @@
                 last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
             </if>
             <if test="deptId != null">
-                dept_id = #{deptId,jdbcType=INTEGER}
+                dept_id = #{deptId,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="addr != null">
+                addr = #{addr,jdbcType=VARCHAR},
+            </if>
+            <if test="ClearCode != null">
+                ClearCode = #{ClearCode,jdbcType=VARCHAR},
             </if>
         </set>
         where user_id = #{userId,jdbcType=INTEGER}
@@ -199,38 +213,18 @@
     </update>
 
 
-    <select id="selectAllWithDept" resultMap="BaseResultMap">
-        select u.user_id,
-               u.username,
-               u.name,
-               u.password,
-               u.salt,
-               u.email,
-               u.status,
-               u.last_login_time,
-               u.create_time,
-               u.modify_time,
-               u.active_code,
-               u.dept_id,
-               u.addr,
-               u.phone
-        from user as u
-        <where>
-            <if test="name != null and name != ''">
-                and u.name = #{name}
-            </if>
-            <if test="addr != null and addr != ''">
-                and u.addr = #{addr}
-            </if>
-            <if test="deptId == 0">
-                and u.dept_id  = #{deptId}
-            </if>
-            <if test="deptId == 1">
-                and u.dept_id  >= #{deptId}
-            </if>
-        </where>
-
-    </select>
+    <select id="selectAllWithDept" resultType="map">
+        select  * from userorderby  where 1=1
+        <if test="name != null and name != ''">
+            and name like "%"#{name}"%"
+        </if>
+        <if test="addr != null and addr != ''">
+            and addr like "%"#{addr}"%"
+        </if>
+        <if test="deptId != null">
+            and role_id  = #{deptId}
+        </if>
+        </select>
     <select id="selectOneWithDept" resultType="map">
         select u.user_id, u.name,
         (SELECT COUNT(*) FROM user where dept_id =  #{userId}) as erji,
@@ -246,15 +240,15 @@
         u.phone
         from user as u where dept_id  = #{userId}
 
-            <if test="name != null and name != ''">
-                and u.name = #{name}
-            </if>
-            <if test="addr != null and addr != ''">
-                and u.addr = #{addr}
-            </if>
-            <if test="phone != null and phone != ''">
-                and u.phone = #{phone}
-            </if>
+        <if test="name != null and name != ''">
+            and u.name = #{name}
+        </if>
+        <if test="addr != null and addr != ''">
+            and u.addr = #{addr}
+        </if>
+        <if test="phone != null and phone != ''">
+            and u.phone = #{phone}
+        </if>
     </select>
     <select id="selectSecondWithDept" resultType="im.zhaojun.system.model.User">
         select u.user_id,
@@ -273,7 +267,55 @@
         from user as u where dept_id >=1
     </select>
     <select id="getOneUser" resultType="java.util.Map">
-        select  user_id,username from user where dept_id = 0
+        SELECT * from `user` u,user_role ur  where u.user_id = ur.user_id and (ur.role_id = 1 or ur.role_id = 2)
+    </select>
+    <select id="selectAdminOne" resultType="java.util.Map">
+        select u.user_id, u.name from user as u
+    </select>
+    <select id="getByDeptID" resultType="java.util.Map">
+select u.user_id,
+               u.username,
+               u.name,
+               u.password,
+               u.salt,
+               u.email,
+               u.status,
+               u.last_login_time,
+               u.create_time,
+               u.modify_time,
+               u.active_code,
+               u.dept_id,
+               u.addr,
+               u.phone,
+               ur.role_id
+        from user as u,user_role ur where u.user_id = ur.user_id and  u.dept_id = #{deptID}
+        order by ur.role_id,u.user_id
+    </select>
+    <select id="getByDeptIDAdmin" resultType="java.util.Map">
+
+ select u.user_id,
+               u.username,
+               u.name,
+               u.password,
+               u.salt,
+               u.email,
+               u.status,
+               u.last_login_time,
+               u.create_time,
+               u.modify_time,
+               u.active_code,
+               u.dept_id,
+               u.addr,
+               u.phone,
+               ur.role_id
+        from user as u,user_role ur where u.user_id = ur.user_id and  u.dept_id = 1
+        order by ur.role_id,u.user_id
+    </select>
+    <select id="getByName" resultType="im.zhaojun.system.model.User">
+        select  * from user where name = #{name}
+    </select>
+    <select id="getAdmin" resultType="java.util.Map">
+        select  u.user_id,u.username from user u,user_role ur where u.user_id = ur.user_id and ur.role_id = 1
     </select>
 
     <update id="activeUserByUserId">
@@ -281,5 +323,9 @@
         set status = 1
         where user_id = #{userId}
     </update>
+    <update id="updateDeptID">
+        UPDATE user set dept_id = 1 where dept_id = #{userID}
+    </update>
+
 
 </mapper>

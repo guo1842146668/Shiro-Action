@@ -13,19 +13,16 @@
         from alert a ,equipment e
         where a.equipmentNO=e.equipmentNO
         <if test="equipmentNO !=  null and equipmentNO != ''">
-            and   equipmentNO like "%"#{equipmentNO}"%"
-        </if>
-        <if test="equipmentName != null and equipmentName !=''" >
-            and   equipmentName like "%"#{equipmentName}"%"
+            and   a.equipmentNO like "%"#{equipmentNO}"%"
         </if>
         <if test="equipmentAddress != null and equipmentAddress !=''">
-            and   equipmentAddress like "%"#{equipmentAddress}"%"
+            and   e.equipmentAddress like "%"#{equipmentAddress}"%"
         </if>
         <if test="equipmentType != null and equipmentType !=''">
-            and   equipmentType = #{equipmentType}
+            and   e.equipmentType = #{equipmentType}
         </if>
         <if test="userID != null and userID !=''">
-            and   userID = #{userID}
+            and   e.userID = #{userID}
         </if>
         <if test="startDate != null &amp; startDate !=''" >
             and a.alertTime &gt;= #{startDate}

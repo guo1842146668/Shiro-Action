@@ -28,4 +28,7 @@ public interface ScheduledMapper {
     Scheduled getScheduledByID(Integer userID);
 
     List<Scheduled> getByCronId(String equipmentNO);
+
+    int saveScheduled(Scheduled scheduled);
+
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RoleService {
@@ -118,5 +119,8 @@ public class RoleService {
         for (Integer userId : userIds) {
             userNameRealm.clearAuthCacheByUserId(userId);
         }
+    }
+    public Map<String,Object> selectByUserID(Integer userID){
+        return roleMapper.selectByUserID(userID);
     }
 }

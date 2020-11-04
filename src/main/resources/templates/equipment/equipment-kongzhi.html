@@ -42,12 +42,11 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label for="deptId" class="layui-form-label">
+                <label for="userID" class="layui-form-label">
                     从属用户
                 </label>
                 <div class="layui-input-block">
-                    <select name="userID" id="deptId"  disabled>
-                        <option value="">所有</option>
+                    <select name="userID" id="userID"  disabled>
                     </select>
                 </div>
             </div>
@@ -57,6 +56,36 @@
                 </label>
                 <div class="layui-input-block" >
                     <input readonly type="text" id="equipmentAddress" name="equipmentAddress"  th:value="${Equipment?.equipmentAddress}"
+                           lay-verify="required" lay-vertype="tips"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="electricCurrentIA" class="layui-form-label">
+                    电流A
+                </label>
+                <div class="layui-input-block" >
+                    <input readonly type="text" id="electricCurrentIA" name="electricCurrentIA"  th:value="${Equipment?.electricCurrentIA}"
+                           lay-verify="required" lay-vertype="tips"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="electricCurrentIB" class="layui-form-label">
+                    电流B
+                </label>
+                <div class="layui-input-block" >
+                    <input readonly type="text" id="electricCurrentIB" name="electricCurrentIB"  th:value="${Equipment?.electricCurrentIB}"
+                           lay-verify="required" lay-vertype="tips"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="electricCurrentIC" class="layui-form-label">
+                    电流C
+                </label>
+                <div class="layui-input-block" >
+                    <input readonly type="text" id="electricCurrentIC" name="electricCurrentIC"  th:value="${Equipment?.electricCurrentIC}"
                            lay-verify="required" lay-vertype="tips"
                            autocomplete="off" class="layui-input">
                 </div>
@@ -72,7 +101,7 @@
                     <img src="../images/x.png"><span>运行中</span></img>
                 </div>
 
-                <div th:if="${Equipment.runningState} == 0">
+                <div th:if="${Equipment.runningState} == null or ${Equipment.runningState} == 0">
                     <img src="../images/jh.png"><span>停机中</span></img>
                 </div>
 
@@ -80,7 +109,7 @@
                 <div th:if="${Equipment.FaultStatus} == 1">
                     <img src="../images/y.png"><span>故障</span></img>
                 </div>
-                <div th:if="${Equipment.FaultStatus} == 0">
+                <div th:if="${Equipment.FaultStatus} == null or ${Equipment.FaultStatus} == 0">
                     <img src="../images/bj.png"><span>故障</span></img>
                 </div>
 
@@ -88,14 +117,14 @@
                 <div th:if="${Equipment.OperationMode} == 1">
                     <img src="../images/s.png"><span>手动模式</span></img>
                 </div>
-                <div th:if="${Equipment.OperationMode} == 0">
+                <div th:if="${Equipment.OperationMode} == null or ${Equipment.OperationMode} == 0">
                     <img src="../images/sd.png"><span>手动模式</span></img>
                 </div>
 
                 <div th:if="${Equipment.OperationMode} == 1">
                     <img src="../images/m.png"><span>自动模式</span></img>
                 </div>
-                <div th:if="${Equipment.OperationMode} == 0">
+                <div th:if="${Equipment.OperationMode} == null or ${Equipment.OperationMode} == 0">
                     <img src="../images/zd.png"><span>自动模式</span></img>
                 </div>
             </div>
@@ -113,7 +142,7 @@
             <div th:if="${Equipment.runningState} == 1" class="dongtu">
                 <img src="../images/01.gif" >
             </div>
-            <div th:if="${Equipment.runningState} == 0"  class="dongtu">
+            <div th:if="${Equipment.runningState} == null or ${Equipment.runningState} == 0"  class="dongtu">
                 <img src="../images/04.png" >
             </div>
 
@@ -125,35 +154,119 @@
     <script th:src="@{/js/common.js}"></script>
 
     <script>
+        $(document).ready(function(){
+            var socket;
+            var userID = [[${Equipment.userID}]];
+            $.ajax({
+                url : "getListOne",
+                type : "get",
+
+                success : function(data) {
+                    var html_two='<option value="">所有</option>';
+                    for (var i = 0; i < data.data.length; i++) {
+                        if(userID != data.data[i].user_id){
+                            html_two += "<option value='"+data.data[i].user_id+"'>"+data.data[i].name+"</option>"
+                        }else{
+                            html_two += "<option value='"+data.data[i].user_id+"' selected>"+data.data[i].name+"</option>"
+                        }
+                    }
+                    $("#userID").html(html_two);
+                    form.render('select');//select是固定写法 不是选择器
+                }
+            });
+
+
+                if(typeof(WebSocket) == "undefined") {
+                    console.log("您的浏览器不支持WebSocket");
+                }else{
+                    console.log("您的浏览器支持WebSocket");
+                     var socketUrl="http://115.29.203.105:80/imserver/30";
+                    /*var socketUrl="http://localhost:80/imserver/30";*/
+                    socketUrl=socketUrl.replace("https","ws").replace("http","ws");
+                    console.log(socketUrl);
+                    if(socket!=null){
+                        socket.close();
+                        socket=null;
+                    }
+                    socket = new WebSocket(socketUrl);
+                    //打开事件
+                    socket.onopen = function() {
+                        console.log("websocket已打开");
+                        //socket.send("这是来自客户端的消息" + location.href + new Date());
+                    };
+                    //获得消息事件
+                    socket.onmessage = function(msg) {
+                        var equipment = JSON.parse(msg.data);
+                        console.log(equipment);
+                        console.log(equipment.equipmentNO);
+                        console.log($("#equipmentNO").val());
+                        if(equipment.equipmentNO == $("#equipmentNO").val()){
+                            $("#electricCurrentIA").val(equipment.electricCurrentIA);
+                            $("#electricCurrentIB").val(equipment.electricCurrentIB);
+                            $("#electricCurrentIC").val(equipment.electricCurrentIC);
+                        }
+                        //发现消息进入    开始处理前端触发逻辑
+                    };
+                    //关闭事件
+                    socket.onclose = function() {
+                        console.log("websocket已关闭");
+                    };
+                    //发生了错误事件
+                    socket.onerror = function() {
+                        console.log("websocket发生了错误");
+                    }
+                }
+
+
+
+
+        });
+
+
+
         var id = $("#equipmentNO").val();
 
         $("#open").click(function () {
+            loadIndex = layer.msg('设备开启中，请稍候...', {icon: 16,time:20*1000});
             $.ajax({
                 url : "/equipment/open?equipmentNO="+id,
                 type : "get",
                 success : function(data) {
-                    if(data.eq("success")){
+                    layer.close(loadIndex);
+                    if(data=="success"){
                         parent.layer.msg("开启成功", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+
                     }else{
                         parent.layer.msg("开启失败", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+
                     }
                 }
             });
         })
 
         $("#down").click(function () {
+            loadIndex = layer.msg('设备关闭中，请稍候...', {icon: 16,time:20*1000});
             $.ajax({
                 url : "/equipment/down?equipmentNO="+id,
                 type : "get",
                 success : function(data) {
-                    if(data.eq("success")){
+                    layer.close(loadIndex);
+                    if(data=="success"){
                         parent.layer.msg("关闭成功", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
                     }else{
                         parent.layer.msg("关闭失败", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
                     }
                 }
             });

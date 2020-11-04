@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="im.zhaojun.system.mapper.ScheduledMapper">
+    <insert id="saveScheduled">
+        insert  into scheduled values (null,#{cronName},#{cronStartTime},#{cronEndTime},#{equipmentNO},#{cronStatus});
+    </insert>
     <update id="updateScheduled">
         update scheduled
         <set>
@@ -9,6 +12,12 @@
             </if>
             <if test="cronEndTime != null and cronEndTime != ''">
                 cronEndTime = #{cronEndTime},
+            </if>
+            <if test="cronStatus != null and cronStatus != ''">
+                cronStatus = #{cronStatus},
+            </if>
+            <if test="equipmentNO != null and equipmentNO != ''">
+                equipmentNO = #{equipmentNO},
             </if>
         </set>
         where cron_id = #{cronId}

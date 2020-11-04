@@ -19,34 +19,34 @@
     <div class="z-body animated fadeIn">
         <form action="" method="post" class="layui-form layui-form-pane">
                 <div class="content">
-                    <div >
-                        <tr th:each="scheduled : ${Scheduled}">
+                        <div>
+                            <tr th:each="scheduled,scheduledStat : ${Scheduled}">
                             <div th:if="${scheduled.cronStatus} eq 1" style="display: flex;justify-content: flex-start;margin-bottom:10px ">
                                 <p style="font-size: 15px;margin: auto 0;margin-right: 15px">开启</p>
-                                <img id="open" src="../images/p.png" style="width:35px;" th:onclick="open(${scheduled.cron_id})">
+                                <img th:id="'open'+${scheduledStat.index+1}"  src="../images/p.png" style="width:35px;" th:onclick="'imgOpen(\''+${scheduledStat.index+1}+'\')'">
                             </div>
                             <div th:if="${scheduled.cronStatus} eq -1"  style="display: flex;justify-content: flex-start">
                                 <p style="font-size: 15px;margin: auto 0;margin-right: 15px">关闭</p>
-                                <img id="down" src="../images/w.png" style="width:35px;" th:onclick="down()">
+                                <img th:id="'down'+${scheduledStat.index+1}"  src="../images/w.png" style="width:35px;" th:onclick="'imgdown(\''+${scheduledStat.index+1}+'\')'">
                             </div>
 
                             <!-- 将用户的主键 uId 存在在 name 属性中-->
-                           <!-- <td id="cron_id" th:text="${scheduled.cron_id}" th:name="${scheduled.cron_id}" hidden></td>-->
+                            <input th:id="'cron_id'+${scheduledStat.index+1}" th:value="${scheduled.cron_id}" type="hidden">
                             <div style="display: flex;justify-content: space-between;margin-bottom: 10px">
                                 <div>
                                     <span style="display: block;text-align: center;margin-bottom: 5px">启动时间</span>
-                                    <input type="text" class="layui-input" id="timeOpen" placeholder="HH:mm" style="" th:value="${scheduled.cronStartTime}">
+                                    <input type="text" class="layui-input" th:id="'timeOpen'+${scheduledStat.index+1}" placeholder="HH:mm" style="" th:value="${scheduled.cronStartTime}">
                                 </div>
                                 <div style="display: flex">
                                     <p style="margin:auto 0">至</p>
                                 </div>
                                 <div>
                                     <span style="display: block;text-align: center;margin-bottom: 5px">停止时间</span>
-                                    <input type="text" class="layui-input" id="timeDown" placeholder="HH:mm" style="" th:value="${scheduled.cronEndTime}">
+                                    <input type="text" class="layui-input" th:id="'timeDown'+${scheduledStat.index+1}" placeholder="HH:mm" style="" th:value="${scheduled.cronEndTime}">
                                 </div>
                             </div>
-                         </tr>
-                    </div>
+                            </tr>
+                        </div>
                 </div>
 
         </form>
@@ -60,19 +60,120 @@
         layui.use('laydate', function() {
             var laydate = layui.laydate;
             laydate.render({
-                elem: '#timeOpen'
+                elem: "#timeOpen1"
                 , type: 'time'
                 ,format: 'HH:mm'
+                ,trigger:'click'
             });
             laydate.render({
-                elem: '#timeDown'
+                elem: "#timeOpen2"
                 , type: 'time'
                 ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeOpen3"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeOpen4"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeOpen5"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeDown1"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeDown2"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeDown3"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeDown4"
+                , type: 'time'
+                ,format: 'HH:mm'
+                ,trigger:'click'
+            });
+            laydate.render({
+                elem: "#timeDown5"
+                , type: 'time'
+                ,format: 'HH:mm'
+                 ,trigger:'click'
             });
         })
 
+        function imgOpen(index){
+            var cron_id = $("#cron_id"+index).val();
+            var startTime = "00:00";
+            var endTime = "00:00";
+            loadIndex = layer.msg('关闭定时中，请稍候...', {icon: 16,time:20*1000});
+            $.ajax({
+                url : "/scheduled/opening?cronId="+cron_id+"&startTime="+startTime+"&endTime="+endTime,
+                type : "get",
+                success : function(data) {
+                    layer.close(loadIndex);
+                    if(data=="success"){
+                        parent.layer.msg("关闭成功", {icon: 6});
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+                    }else{
+                        parent.layer.msg("关闭失败", {icon: 6});
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+        function imgdown(index){
+            var cron_id = $("#cron_id"+index).val();
+            var startTime =  $("#timeOpen"+index).val();
+            var endTime =  $("#timeDown"+index).val();
+            loadIndex = layer.msg('设置定时中，请稍候...', {icon: 16,time:20*1000});
+            $.ajax({
+                url : "/scheduled/opening?cronId="+cron_id+"&startTime="+startTime+"&endTime="+endTime,
+                type : "get",
+                success : function(data) {
+                    layer.close(loadIndex);
+                    if(data=="success"){
+                        parent.layer.msg("开启成功", {icon: 6});
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+                    }else{
+                        parent.layer.msg("开启失败", {icon: 6});
+                        setTimeout(function (){
+                            location.reload();
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+   /*
         $("#open").click(function () {
-            var cron_id = $("#cron_id").val();
+
 
             var startTime = "00:00";
             var endTime = "00:00";
@@ -80,36 +181,44 @@
                 url : "/equipment/opening?cronId="+cron_id+"&startTime="+startTime+"&endTime="+endTime,
                 type : "get",
                 success : function(data) {
-                    if(data.eq("success")){
-                        parent.layer.msg("开启成功", {icon: 6});
-                        table.reload('user-table');
+                    if(data=="success"){
+                        parent.layer.msg("关闭成功", {icon: 6});
+                        setTimeout(function (){
+                            parent.location.reload();
+                        }, 2000);
                     }else{
-                        parent.layer.msg("开启失败", {icon: 6});
-                        table.reload('user-table');
+                        parent.layer.msg("关闭失败", {icon: 6});
+                        setTimeout(function (){
+                            parent.location.reload();
+                        }, 2000);
                     }
                 }
             });
         })
 
         $("#down").click(function () {
-            var cron_id = $("#cron_id").val();
+            /!*var cron_id = $("#cron_id").val();*!/
             var startTime = $("#timeOpen").val();
             var endTime = $("#timeDown").val();
             $.ajax({
                 url : "/equipment/opening?cronId="+cron_id+"&startTime="+startTime+"&endTime="+endTime,
                 type : "get",
                 success : function(data) {
-                    if(data.eq("success")){
+                    if(data=="success"){
                         parent.layer.msg("开启成功", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            parent.location.reload();
+                        }, 2000);
                     }else{
                         parent.layer.msg("开启失败", {icon: 6});
-                        table.reload('user-table');
+                        setTimeout(function (){
+                            parent.location.reload();
+                        }, 2000);
                     }
                 }
             });
         })
-
+*/
     </script>
 <style>
     .layui-laydate-content>.layui-laydate-list {

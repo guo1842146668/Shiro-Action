@@ -28,13 +28,6 @@
                     <input type="text" name="equipmentNO" autocomplete="off"
                            id="equipmentNO" class="layui-input">
                 </div>
-
-                <label for="equipmentName" class="layui-form-label" style="width: auto">设备名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="equipmentName" autocomplete="off"
-                           id="equipmentName" class="layui-input">
-                </div>
-
                 <label for="equipmentAddress" class="layui-form-label" style="width: auto">安装地址</label>
                 <div class="layui-input-inline">
                     <input type="text" name="equipmentAddress" autocomplete="off"
@@ -63,12 +56,13 @@
     <a lay-event="edit">
         <span >查看</span>
     </a>
-    <a lay-event="save">
-        <span >远程控制</span>
-    </a>
-    <a lay-event="selects">
-        <span >定时</span>
-    </a>
+    {{#  if(d.electricStatus ==1){ }}
+    <a lay-event="save"><span >远程控制</span></a>
+    {{#  } }}
+
+    {{#  if(d.electricStatus ==1){ }}
+    <a lay-event="selects"><span >定时</span></a>
+    {{#  } }}
     <a lay-event="del">
         <span >删除</span>
     </a>
@@ -82,10 +76,17 @@
             {{#  } }}
 </script>
 <script type="text/html" id="typeTpl1">
-    {{#  if(d.electricStatus ==1 ){ }}
+    {{#  if(d.runningState ==1 ){ }}
     <div style="width: 12px;height: 12px; background:green;border-radius: 50%;"><div><span style="padding-left: 20px">运行</span>
         {{#  } else { }}
         <div style="width: 12px;height: 12px; background:red;border-radius: 50%;"><div><span style="padding-left: 20px">停止</span>
+            {{#  } }}
+</script>
+<script type="text/html" id="typeTpl2">
+    {{#  if(d.runningState ==1 ){ }}
+    <div style="width: 12px;height: 12px; background:red;border-radius: 50%;"><div><span style="padding-left: 20px">故障</span>
+        {{#  } else { }}
+        <div style="width: 12px;height: 12px; background:green;border-radius: 50%;"><div><span style="padding-left: 20px">正常</span>
             {{#  } }}
 </script>
 
@@ -138,21 +139,19 @@
             , url: '/equipment/list'
             , page: true
             , toolbar: '#toolbar'
+            , defaultToolbar: ['filter','print']
             , smartReloadModel: true
             , cols: [
                 [
                     {type: 'numbers', title: '序号', width: "5%"}
                     ,{field: 'equipmentID', title: '设备ID', width: "5%", hide: true}
                     , {field: 'equipmentNO', title: '设备ID', width: "15%"}
-                    /*, {field: 'equipmentName', title: '设备名称', width: "12%"}*/
-                    , {field: 'equipmentTypeName', title: '型号', width: "15%"}
-                    , {field: 'equipmentAddress', title: '设备安装地址', width: "20%"}
-                    , {field: 'username', title: '所属用户', width: "10%"}
-                    /* , {field: 'electricCurrentIA', title: '电流1', width: "7%"}
-                     , {field: 'electricCurrentIB', title: '电流2', width: "7%"}
-                     , {field: 'electricCurrentIC', title: '电流3', width: "7%"}*/
+                    , {field: 'equipmentTypeName', title: '型号', width: "10%"}
+                    , {field: 'equipmentAddress', title: '设备安装地址', width: "10%"}
+                    , {field: 'name', title: '所属用户', width: "10%"}
                     , {field: 'electricStatus', title: '链接状态', templet:"#typeTpl", width: "10%"}
                     , {field: 'runningState', title: '设备状态', templet:"#typeTpl1", width: "10%"}
+                    , {field: 'FaultStatus', title: '故障状态', templet:"#typeTpl2", width: "10%"}
                     , {title: '操作', fixed: 'right', align: 'center', toolbar: '#column-toolbar',width: "18%"}
                 ]
             ]

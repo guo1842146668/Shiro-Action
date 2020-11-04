@@ -43,11 +43,11 @@
             </div>
             <div class="layui-form-item">
                 <label for="deptId" class="layui-form-label">
-                    从属用户
+                    所属用户
                 </label>
                 <div class="layui-input-block">
                     <select name="userID" id="deptId" >
-                        <option value="">所有</option>
+
                     </select>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                 <div class="layui-input-block" style="margin-left:0;text-align:center;">
 
                     <input type="hidden" id="equipmentID" name="equipmentID" th:value="${Equipment?.equipmentID}">
-                    <button th:text="${Equipment}?'修改':'增加'"  class="layui-btn layui-btn-normal btn-w100" lay-submit="" data-th-lay-filter="${Equipment}?'edit':'add'"></button>
+                    <button id="sbmit" th:text="${Equipment}?'修改':'增加'"  class="layui-btn layui-btn-normal btn-w100" lay-submit="" data-th-lay-filter="${Equipment}?'edit':'add'"></button>
                 </div>
             </div>
         </form>
@@ -76,7 +76,6 @@
     <script th:src="@{/js/common.js}"></script>
 
     <script>
-
         layui.config({
             base: '/lib/layui/extend/'
         }).extend({
@@ -91,10 +90,9 @@
                     url : "getListOne",
                     type : "get",
                     success : function(data) {
-                        console.log(data);
-                        var html_two='';
+                        var html_two='<option value="">所有</option>';
                         for (var i = 0; i < data.data.length; i++) {
-                            html_two += "<option value='"+data.data[i].user_id+"'>"+data.data[i].name+"</option>"
+                                html_two += "<option value='"+data.data[i].user_id+"'>"+data.data[i].name+"</option>"
                         }
                         $("#deptId").html(html_two);
                         form.render('select');//select是固定写法 不是选择器
@@ -138,12 +136,18 @@
 
             function addDone(data) {
                 layer.msg("添加成功", {icon: 6});
-
+                setTimeout(function (){
+                    window.parent.location.reload();
+                    top.layui.element.tabDelete("lay-tab", top.jQuery(".layui-tab-title .layui-this").attr("lay-id"));
+                }, 2000);
             }
 
             function editDone(data) {
                 layer.msg("修改成功", {icon: 6});
-
+                setTimeout(function (){
+                    window.parent.location.reload();
+                    top.layui.element.tabDelete("lay-tab", top.jQuery(".layui-tab-title .layui-this").attr("lay-id"));
+                }, 2000);
             }
         });
     </script>

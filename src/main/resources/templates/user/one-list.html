@@ -50,46 +50,18 @@
         <table class="layui-hide" id="user-table"></table>
     </div>
 
-    <script type="text/html" id="toolbar">
-        <shiro:hasPermission name="user:add">
-            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="add">
-                <i class="zadmin-icon zadmin-icon-xinzeng zadmin-oper-area"></i>
-                新增
-            </button>
-        </shiro:hasPermission>
-    </script>
-
     <script type="text/html" id="column-toolbar">
-        <!--<shiro:hasPermission name="user:update">
-            <a lay-event="edit">
-                <i class="zadmin-icon zadmin-icon-edit-square zadmin-oper-area zadmin-blue" title="编辑"></i>
-            </a>
-        </shiro:hasPermission>
-        <shiro:hasPermission name="user:delete">
-            <a lay-event="del">
-                <i class="zadmin-icon zadmin-icon-delete zadmin-oper-area zadmin-red" title="删除"></i>
-            </a>
-        </shiro:hasPermission>
 
-        <shiro:lacksPermission  name="user:update,user:delete">
-            <i class="zadmin-icon zadmin-icon-wuquanxian zadmin-oper-area zadmin-red"></i>无权限
-        </shiro:lacksPermission>-->
         <a lay-event="edit">
             <i class="zadmin-icon zadmin-icon-search zadmin-oper-area zadmin-blue" title="查看"></i>
         </a>
+        {{#  if(d.userId !=1){ }}
+        <a lay-event="del">
+            <i class="zadmin-icon zadmin-icon-delete zadmin-oper-area zadmin-red" title="删除"></i>
+        </a>
+        {{#  } }}
     </script>
 
-<!--
-    <script type="text/html" id="statusTpl">
-        &lt;!&ndash; 不能禁用自己 &ndash;&gt;
-        {{#  if('<shiro:principal property="username"/>' == d.username) { }}
-            <input type="checkbox" disabled name="status" value="{{d.userId}}" lay-skin="switch" lay-text="正常|锁定" lay-filter="status" {{ d.status == '1' ? 'checked' : '' }}>
-        {{#  } }}
-
-        {{#  if('<shiro:principal property="username"/>' !== d.username) { }}
-            <input type="checkbox" name="status" value="{{d.userId}}" lay-skin="switch" lay-text="正常|锁定" lay-filter="status" {{ d.status == '1' ? 'checked' : '' }}>
-        {{#  } }}
-    </script>-->
 
     <script th:src="@{/lib/jquery/jquery.min.js}"></script>
     <script th:src="@{/lib/layui/layui.js}"></script>
@@ -107,34 +79,6 @@
 
             tablePlug.smartReload.enable(true);
 
-            /*dtree.renderSelect({
-                elem: "#deptTree",
-                url: "/dept/tree",
-                dataStyle: "layuiStyle",
-                width: "100%",
-                method: "GET",
-                dot: false,
-                menubar: true,
-                response: {
-                    statusCode: 0,
-                    message: "msg",
-                    treeId: "id",
-                    parentId: "parentId",
-                    title: "name"
-                }
-            });
-
-            dtree.on("node('deptTree')" ,function(obj) {
-                var typeDom = layui.$('#deptId');
-                console.log(typeDom.val() , obj.param.nodeId);
-                console.log(typeDom.val() === obj.param.nodeId);
-                if (typeDom.val() === obj.param.nodeId) {
-                    typeDom.val('');
-                    layui.$("input[dtree-id='deptTree']").val('请选择');
-                } else {
-                    typeDom.val(obj.param.nodeId)
-                }
-            });*/
 
             table.render({
                 elem: '#user-table'
@@ -152,7 +96,6 @@
                         , {field: 'shebei', title: '登记设备总数', width: "12%"}
                         , {field: 'zaixian', title: '在线设备总数', width: "12%"}
                         , {field: 'phone', title: '联系方式', width: "12%"}
-                        /*, {field: 'status', title: '状态', templet: "#statusTpl", width: "12%"}*/
                         , {title: '操作', fixed: 'right', align: 'center', toolbar: '#column-toolbar'}
                     ]
                 ]
