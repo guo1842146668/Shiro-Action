@@ -1,5 +1,7 @@
 package im.zhaojun.socket;
 
+import im.zhaojun.system.controller.equipmentRunnable;
+import im.zhaojun.system.mapper.EquipmentMapper;
 import im.zhaojun.system.service.AlertService;
 import im.zhaojun.system.service.EquipmentService;
 import im.zhaojun.system.service.ScheduledService;
@@ -27,10 +29,14 @@ public class SocketServer implements ApplicationRunner {
 	private AlertService alertService;
 	@Resource
 	private ScheduledService scheduledService;
+	@Resource
+	private EquipmentMapper equipmentMapper;
 
 	@Override
 	public void run(ApplicationArguments args){
+		equipmentService.updateElectricStatus();
 		new Thread(new StartServerSocket9000(equipmentService,alertService,scheduledService)).start();
+		new Thread(new equipmentRunnable(equipmentMapper)).start();
 	}
 
 }

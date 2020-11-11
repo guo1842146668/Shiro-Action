@@ -134,9 +134,15 @@ public class EquipmentController {
     @OperationLog("开启")
     @GetMapping("/open")
     @ResponseBody
-    public String open(String equipmentNO){
-        ServerThread9000.accused(ServerThread9000.Division(equipmentNO),"1");
-        ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+    public String open(String equipmentNO) throws Exception {
+        try {
+            ServerThread9000.accused(ServerThread9000.Division(equipmentNO),"1");
+            ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return "error";
+        }
+
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -153,9 +159,14 @@ public class EquipmentController {
     @OperationLog("关闭")
     @GetMapping("/down")
     @ResponseBody
-    public String down(String equipmentNO){
-        ServerThread9000.accused(ServerThread9000.Division(equipmentNO),"0");
-        ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+    public String down(String equipmentNO) throws Exception {
+        try {
+            ServerThread9000.accused(ServerThread9000.Division(equipmentNO),"0");
+            ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return "error";
+        }
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -183,6 +194,12 @@ public class EquipmentController {
             selectOne = userService.selectAdminOne();
         }
         return ResultBean.success(selectOne);
+    }
+
+    @GetMapping("/getOne")
+    @ResponseBody
+    public ResultBean getOne(String equipmentNO) {
+        return ResultBean.success(equipmentService.selectByEquipmentNO(equipmentNO));
     }
 
     @OperationLog("控制")
@@ -214,8 +231,13 @@ public class EquipmentController {
 
     @GetMapping("/read")
     @ResponseBody
-    public String read(String equipmentNO){
-        ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+    public String read(String equipmentNO) throws Exception {
+        try {
+            ServerThread9000.read(ServerThread9000.Division(equipmentNO));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return "error";
+        }
         return "success";
     }
 

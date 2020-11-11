@@ -74,7 +74,7 @@ public class ScheduledController {
 
     @GetMapping("/openingTiming")
     @ResponseBody
-    public String openingTiming(String iccid,String hour1,String minute1,String hour2,String minute2,Integer ID) {
+    public String openingTiming(String iccid,String hour1,String minute1,String hour2,String minute2,Integer ID) throws Exception {
         List<String> list = new ArrayList<>();
         List<Map<String, Object>> maps = scheduledService.listByEquipmentNO(iccid);
         for (int i = 0; i < maps.size(); i++) {
@@ -93,9 +93,14 @@ public class ScheduledController {
         }else{
             num = ""+ID%5+"";
         }
-        ServerThread9000.setTheStartAndStopTime(ServerThread9000.Division(iccid), hour1, minute1, hour2, minute2,num);
+       try {
+           ServerThread9000.setTheStartAndStopTime(ServerThread9000.Division(iccid), hour1, minute1, hour2, minute2,num);
+       } catch (InterruptedException e) {
+            e.printStackTrace();
+            return "error";
+        }
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -110,7 +115,7 @@ public class ScheduledController {
 
     @GetMapping("/opening")
     @ResponseBody
-    public String opening(Integer cronId,String startTime,String endTime){
+    public String opening(Integer cronId,String startTime,String endTime) throws Exception {
         Scheduled scheduledByID = scheduledService.getScheduledByID(cronId);
         List<Scheduled> byUserID = scheduledService.getByCronId(scheduledByID.getEquipmentNO());
         List<String> list = new ArrayList<>();

@@ -14,7 +14,7 @@ public class HairUtil {
 	 * @param address		IP地址
 	 * @return
 	 */
-	public static boolean send(String data,String address){
+	public static boolean send(String data,String address) throws Exception{
 		try{
 			boolean f = false;
 			SocketSpace socketSpace = map.get(address);
@@ -25,13 +25,13 @@ public class HairUtil {
 				out.write(by);
 				f = true;
 			}else{
-				System.out.println("无法发送，ip为"+address+"的连接对象为null");
+				throw new NullPointerException();
+				//System.out.println("无法发送，ip为"+address+"的连接对象为null");
 			}
 			return f;
 		}catch (Exception e){
-			e.printStackTrace();
+			throw new Exception();
 		}
-		return false;
 	}
 
 	/**

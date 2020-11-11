@@ -120,6 +120,15 @@
         where  equipmentNO = #{equipmentNO}
 
     </update>
+    <update id="updateElectricStatus" parameterType="map">
+        update  equipment set electricStatus = -1
+    </update>
+    <update id="updateElectricStatusIn" parameterType="java.util.Map">
+        update  equipment set electricStatus = -1 WHERE equipmentNO NOT IN
+        <foreach collection="paramMap.keys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+    </update>
 
     <delete id="deleteEquipment">
         delete  from equipment where equipmentID = #{equipmentID}
@@ -164,5 +173,8 @@
 
     <select id="selectScheduled" resultType="java.util.Map">
         select  * from scheduled where equipmentNO = #{equipmentNO}
+    </select>
+    <select id="selectEquipmentAll" resultType="im.zhaojun.system.model.Equipment">
+        select  * from Equipment
     </select>
 </mapper>

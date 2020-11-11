@@ -65,7 +65,7 @@
                     电流A
                 </label>
                 <div class="layui-input-block" >
-                    <input readonly type="text" id="electricCurrentIA" name="electricCurrentIA"  th:value="${Equipment?.electricCurrentIA}"
+                    <input readonly type="text" id="electricCurrentIA" name="electricCurrentIA"  th:value="${Equipment?.electricCurrentIA}+A"
                            lay-verify="required" lay-vertype="tips"
                            autocomplete="off" class="layui-input">
                 </div>
@@ -75,7 +75,7 @@
                     电流B
                 </label>
                 <div class="layui-input-block" >
-                    <input readonly type="text" id="electricCurrentIB" name="electricCurrentIB"  th:value="${Equipment?.electricCurrentIB}"
+                    <input readonly type="text" id="electricCurrentIB" name="electricCurrentIB"  th:value="${Equipment?.electricCurrentIB}+A"
                            lay-verify="required" lay-vertype="tips"
                            autocomplete="off" class="layui-input">
                 </div>
@@ -85,7 +85,7 @@
                     电流C
                 </label>
                 <div class="layui-input-block" >
-                    <input readonly type="text" id="electricCurrentIC" name="electricCurrentIC"  th:value="${Equipment?.electricCurrentIC}"
+                    <input readonly type="text" id="electricCurrentIC" name="electricCurrentIC"  th:value="${Equipment?.electricCurrentIC}+A"
                            lay-verify="required" lay-vertype="tips"
                            autocomplete="off" class="layui-input">
                 </div>
@@ -93,38 +93,39 @@
             <div class="layui-form-item">
                 <div class="layui-input-block" style="margin-left:0;text-align:center;">
                     <input type="hidden" id="equipmentID" name="equipmentID" th:value="${Equipment?.equipmentID}">
+                    <input type="hidden" id="runningState" th:value="${Equipment?.runningState}">
                 </div>
             </div>
 
             <div class="install">
-                <div th:if="${Equipment.runningState} == 1">
+                <div  id="runningState1">
                     <img src="../images/x.png"><span>运行中</span></img>
                 </div>
 
-                <div th:if="${Equipment.runningState} == null or ${Equipment.runningState} == 0">
+                <div  id="runningState2">
                     <img src="../images/jh.png"><span>停机中</span></img>
                 </div>
 
 
-                <div th:if="${Equipment.FaultStatus} == 1">
+                <div  id="FaultStatus1">
                     <img src="../images/y.png"><span>故障</span></img>
                 </div>
-                <div th:if="${Equipment.FaultStatus} == null or ${Equipment.FaultStatus} == 0">
+                <div id="FaultStatus2">
                     <img src="../images/bj.png"><span>故障</span></img>
                 </div>
 
 
-                <div th:if="${Equipment.OperationMode} == 1">
+                <div  id="OperationMode1">
                     <img src="../images/s.png"><span>手动模式</span></img>
                 </div>
-                <div th:if="${Equipment.OperationMode} == null or ${Equipment.OperationMode} == 0">
+                <div  id="OperationMode2">
                     <img src="../images/sd.png"><span>手动模式</span></img>
                 </div>
 
-                <div th:if="${Equipment.OperationMode} == 1">
+                <div id="OperationMode3">
                     <img src="../images/m.png"><span>自动模式</span></img>
                 </div>
-                <div th:if="${Equipment.OperationMode} == null or ${Equipment.OperationMode} == 0">
+                <div  id="OperationMode4">
                     <img src="../images/zd.png"><span>自动模式</span></img>
                 </div>
             </div>
@@ -139,10 +140,10 @@
                 </div>
             </div>
 
-            <div th:if="${Equipment.runningState} == 1" class="dongtu">
+            <div  class="dongtu" id="runningState3">
                 <img src="../images/01.gif" >
             </div>
-            <div th:if="${Equipment.runningState} == null or ${Equipment.runningState} == 0"  class="dongtu">
+            <div  class="dongtu" id="runningState4">
                 <img src="../images/04.png" >
             </div>
 
@@ -155,12 +156,61 @@
 
     <script>
         $(document).ready(function(){
+
+            if([[${Equipment.runningState}]] == 1){
+
+
+                /*$("#runningState1").attr("style","display:block;");
+                $("#runningState2").attr("style","display:none;");
+                $("#runningState3").attr("style","display:block;");
+                $("#runningState4").attr("style","display:none;");*/
+                $("#runningState1").show();
+                $("#runningState2").hide();
+                $("#runningState3").show();
+                $("#runningState4").hide();
+            }else{
+                console.log("关闭");
+                /* $("#runningState4").attr("style","display:block;");
+                 $("#runningState3").attr("style","display:none;");
+                 $("#runningState2").attr("style","display:block;");
+                 $("#runningState1").attr("style","display:none;");*/
+                $("#runningState4").show();
+                $("#runningState3").hide();
+                $("#runningState2").show();
+                $("#runningState1").hide();
+            }
+
+            if([[${Equipment.FaultStatus}]]  == 1){
+                $("#FaultStatus1").show();
+                $("#FaultStatus2").hide();
+            }else{
+                $("#FaultStatus2").show();
+                $("#FaultStatus1").hide();
+            }
+
+            if([[${Equipment.OperationMode}]]== 1){
+                $("#OperationMode1").show();
+                $("#OperationMode2").hide();
+                $("#OperationMode3").show();
+                $("#OperationMode4").hide();
+            }else{
+                $("#OperationMode4").show();
+                $("#OperationMode3").hide();
+                $("#OperationMode2").show();
+                $("#OperationMode1").hide();
+            }
+
+            /*var ceshi = JSON.parse([[${Equipment}]]);
+            console.log(ceshi);
+            console.log(JSON.parse(ceshi));*/
+
+
             var socket;
             var userID = [[${Equipment.userID}]];
             $.ajax({
                 url : "getListOne",
                 type : "get",
-
+                async:false,
                 success : function(data) {
                     var html_two='<option value="">所有</option>';
                     for (var i = 0; i < data.data.length; i++) {
@@ -171,7 +221,6 @@
                         }
                     }
                     $("#userID").html(html_two);
-                    form.render('select');//select是固定写法 不是选择器
                 }
             });
 
@@ -196,14 +245,17 @@
                     };
                     //获得消息事件
                     socket.onmessage = function(msg) {
-                        var equipment = JSON.parse(msg.data);
-                        console.log(equipment);
-                        console.log(equipment.equipmentNO);
-                        console.log($("#equipmentNO").val());
-                        if(equipment.equipmentNO == $("#equipmentNO").val()){
-                            $("#electricCurrentIA").val(equipment.electricCurrentIA);
-                            $("#electricCurrentIB").val(equipment.electricCurrentIB);
-                            $("#electricCurrentIC").val(equipment.electricCurrentIC);
+                       var parse = JSON.parse(msg.data);
+                        for (let i = 0; i < parse.length; i++) {
+                            if(parse[i].equipmentNO == $("#equipmentNO").val()){
+                                $("#electricCurrentIA").val(parse[i].electricCurrentIA+"A");
+                                $("#electricCurrentIB").val(parse[i].electricCurrentIB+"A");
+                                $("#electricCurrentIC").val(parse[i].electricCurrentIC+"A");
+                                $("#equipmentType").val(parse[i].equipmentType);
+                                $("#userID").val(parse[i].userID)
+                                $("#equipmentAddress").val(parse[i].equipmentAddress);
+                                $("#runningState").val(parse[i].runningState);
+                            }
                         }
                         //发现消息进入    开始处理前端触发逻辑
                     };
@@ -227,6 +279,10 @@
         var id = $("#equipmentNO").val();
 
         $("#open").click(function () {
+            if($('#runningState').val() == 1){
+                layer.msg("设备已运行,请勿多次操作", {icon: 6})
+                return;
+            }
             loadIndex = layer.msg('设备开启中，请稍候...', {icon: 16,time:20*1000});
             $.ajax({
                 url : "/equipment/open?equipmentNO="+id,
@@ -235,15 +291,11 @@
                     layer.close(loadIndex);
                     if(data=="success"){
                         parent.layer.msg("开启成功", {icon: 6});
-                        setTimeout(function (){
-                            location.reload();
-                        }, 2000);
+                        shuaxin()
 
                     }else{
-                        parent.layer.msg("开启失败", {icon: 6});
-                        setTimeout(function (){
-                            location.reload();
-                        }, 2000);
+                        parent.layer.msg("开启失败", {icon: 5});
+                        shuaxin()
 
                     }
                 }
@@ -251,6 +303,10 @@
         })
 
         $("#down").click(function () {
+            if($('#runningState').val() == 0){
+                layer.msg("设备已关闭,请勿多次操作", {icon: 6})
+                return;
+            }
             loadIndex = layer.msg('设备关闭中，请稍候...', {icon: 16,time:20*1000});
             $.ajax({
                 url : "/equipment/down?equipmentNO="+id,
@@ -259,18 +315,75 @@
                     layer.close(loadIndex);
                     if(data=="success"){
                         parent.layer.msg("关闭成功", {icon: 6});
-                        setTimeout(function (){
-                            location.reload();
-                        }, 2000);
+                        shuaxin()
                     }else{
-                        parent.layer.msg("关闭失败", {icon: 6});
-                        setTimeout(function (){
-                            location.reload();
-                        }, 2000);
+                        parent.layer.msg("关闭失败", {icon: 5});
+                        shuaxin()
                     }
                 }
             });
         })
+
+
+        function shuaxin() {
+            $.ajax({
+                url : "/equipment/getOne?equipmentNO="+id,
+                type : "get",
+                success : function(data) {
+                   var parse = data.data;
+                   console.log(parse);
+                   if(parse.electricStatus != 1){
+                       parent.layer.msg("设备已离线！", {icon: 2});
+                       setTimeout(function (){
+                           parent.location.reload();
+                       }, 2000);
+                   }
+                   if(parse.runningState == 1){
+
+
+                       /*$("#runningState1").attr("style","display:block;");
+                       $("#runningState2").attr("style","display:none;");
+                       $("#runningState3").attr("style","display:block;");
+                       $("#runningState4").attr("style","display:none;");*/
+                       $("#runningState1").show();
+                       $("#runningState2").hide();
+                       $("#runningState3").show();
+                       $("#runningState4").hide();
+                   }else{
+                       console.log("关闭");
+                      /* $("#runningState4").attr("style","display:block;");
+                       $("#runningState3").attr("style","display:none;");
+                       $("#runningState2").attr("style","display:block;");
+                       $("#runningState1").attr("style","display:none;");*/
+                       $("#runningState4").show();
+                       $("#runningState3").hide();
+                       $("#runningState2").show();
+                       $("#runningState1").hide();
+                   }
+
+                    if(parse.FaultStatus == 1){
+                        $("#FaultStatus1").show();
+                        $("#FaultStatus2").hide();
+                    }else{
+                        $("#FaultStatus2").show();
+                        $("#FaultStatus1").hide();
+                    }
+
+                    if(parse.OperationMode == 1){
+                        $("#OperationMode1").show();
+                        $("#OperationMode2").hide();
+                        $("#OperationMode3").show();
+                        $("#OperationMode4").hide();
+                    }else{
+                        $("#OperationMode4").show();
+                        $("#OperationMode3").hide();
+                        $("#OperationMode2").show();
+                        $("#OperationMode1").hide();
+                    }
+
+                }
+            });
+        }
     </script>
 <style>
     .install{

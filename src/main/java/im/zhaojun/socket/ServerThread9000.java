@@ -264,8 +264,19 @@ public class ServerThread9000 implements Runnable {
 //                    if(lists.size() == 0){
                         for (String key: ICCID_IP.keySet()) {
                             //lists.add(key);
-                            read(key);
+                            try {
+                                read(key);
+                            } catch (Exception e) {
+                                timer.cancel();
+                                num=1;
+                                Equipment equipment = new Equipment();
+                                equipment.setEquipmentNO(HexadecimalToDecimal(key));
+                                equipment.setElectricStatus(-1);
+                                equipmentService.updateByEquipmentNo(equipment);
+                                ICCID_IP.remove(key);
+                            }
                         }
+                  /* equipmentService.updateElectricStatusServer(ICCID_IP);*/
 //                    }
                   /*  read(lists.get(0));
                     lists.remove(0);*/
@@ -305,7 +316,7 @@ public class ServerThread9000 implements Runnable {
         HairUtil.send(CRC16.getCrc(sb.toString()), ICCID_IP.get(iccid.substring(0,iccid.length()-1)));
     }
 */
-    public static void shakeHands(String[] dataArrays) {
+    public static void shakeHands(String[] dataArrays) throws Exception {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i <= 9; i++) {
             sb.append(dataArrays[i] + " ");
@@ -360,7 +371,7 @@ public class ServerThread9000 implements Runnable {
     }
 */
 
-    public static void read(String iccid) {
+    public static void read(String iccid) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append(iccid);
         //功能码
@@ -388,7 +399,7 @@ public class ServerThread9000 implements Runnable {
      * 反控
      * @param type 1开启，0关闭
      */
-    public static void accused(String iccid, String type) {
+    public static void accused(String iccid, String type) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append(iccid);
         //功能码
@@ -424,7 +435,7 @@ public class ServerThread9000 implements Runnable {
      * @param hour2   时
      * @param minute2 分
      */
-    public static void setTheStartAndStopTime(String iccid, String hour1, String minute1, String hour2, String minute2,String time) {
+    public static void setTheStartAndStopTime(String iccid, String hour1, String minute1, String hour2, String minute2,String time) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append(iccid);
         //功能码
@@ -547,13 +558,13 @@ public class ServerThread9000 implements Runnable {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        shakeHands("59 56 04 45 0A 13 46 61 24 3B 01 90 83".split(" "));
+   /* public static void main(String[] args) {
+        //shakeHands("59 56 04 45 0A 13 46 61 24 3B 01 90 83".split(" "));
         //read("59 56 04 45 0A 13 46 61 24 3B ");
         //accused("595604450A134661243B","1");
         //setTheStartAndStopTime("595604450A134661243B", "10", "10", "11", "20");
         //readTheParsing("59 56 04 45 0A 13 46 61 24 3B 02 00 00 00 00 00 00 0E 4E 2B".split(" "));
-    }
+    }*/
 
 
 }

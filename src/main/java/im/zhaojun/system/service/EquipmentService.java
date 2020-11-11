@@ -56,10 +56,8 @@ public class EquipmentService {
             Map<String, Object> map = equipmentMapper.selectByEquipmentNO(equipment.getEquipmentNO());
             if(!map.get("electricStatus").equals(equipment.getElectricStatus()) || !map.get("runningState").equals(equipment.getRunningState()) || !map.get("OperationMode").equals(equipment.getOperationMode()) || !map.get("FaultStatus").equals(equipment.getFaultStatus())){
                 WebSocketServer.sendInfo("true","20");
+                WebSocketServer.sendInfo("true","40");
                 WebSocketServer.sendInfo("true","100");
-            }
-            if(!map.get("electricCurrentIA").equals(equipment.getElectricCurrentIA()) || !map.get("electricCurrentIB").equals(equipment.getElectricCurrentIB()) || !map.get("electricCurrentIC").equals(equipment.getElectricCurrentIC())){
-                WebSocketServer.sendInfo(JSONUtil.toJsonStr(JSONUtil.parseObj(equipment)),"30");
             }
         }catch (Exception e){
             return  0;
@@ -73,5 +71,18 @@ public class EquipmentService {
 
     public List<Map<String,Object>> selectScheduled(String equipmentNO){
         return  equipmentMapper.selectScheduled(equipmentNO);
+    }
+
+    public int updateElectricStatus(){
+       return   equipmentMapper.updateElectricStatus();
+    }
+
+    public int updateElectricStatusServer(Map<String,String> map){
+        if(map.size() == 0){
+            return equipmentMapper.updateElectricStatus();
+        }else{
+            return equipmentMapper.updateElectricStatusIn(map);
+        }
+
     }
 }

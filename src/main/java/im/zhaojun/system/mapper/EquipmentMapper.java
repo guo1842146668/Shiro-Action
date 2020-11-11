@@ -2,6 +2,7 @@ package im.zhaojun.system.mapper;
 
 import im.zhaojun.system.model.Equipment;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -71,4 +72,10 @@ public interface EquipmentMapper {
      * @return 返回修改结果
      */
     List<Map<String,Object>> selectScheduled(String equipmentNO);
+
+    List<Equipment> selectEquipmentAll();
+
+    int updateElectricStatus();
+
+    int updateElectricStatusIn(@Param("paramMap") Map<String,String> map);
 }
